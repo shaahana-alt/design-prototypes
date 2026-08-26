@@ -56,9 +56,8 @@ export function PrototypeNav({
         value={postId}
         onChange={onPost}
         options={[
-          { id: "1", label: "Ipsy 1" },
-          { id: "2", label: "Ipsy 2" },
-          { id: "3", label: "Ipsy 3" },
+          { id: "1", label: "Lululemon 1" },
+          { id: "2", label: "Lululemon 2" },
         ]}
       />
       <Segment

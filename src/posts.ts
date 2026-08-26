@@ -3,7 +3,7 @@ import type { ThreadComment } from "./CommentCount";
 
 export type SummaryMode = "paragraph" | "themes";
 export type SentimentMode = "score" | "chart";
-export type PostId = "1" | "2" | "3";
+export type PostId = "1" | "2";
 
 export type Theme = {
   id: string;
@@ -12,6 +12,7 @@ export type Theme = {
   dot: string;
   comments: ThreadComment[];
   detail?: string;
+  count?: number;
 };
 
 export type AdditionalComments = {
@@ -60,6 +61,7 @@ export type Post = {
     likes: string;
   }[];
   transcript: { time: string; text: string }[];
+  duration?: string;
 };
 
 const metrics = (values: [string, string, string, string, string, string, string, string]) => [
@@ -73,338 +75,256 @@ const metrics = (values: [string, string, string, string, string, string, string
   { icon: assets.ctr, value: values[7], label: "Click-through rate" },
 ];
 
-const buy: Theme = {
-  id: "buy",
-  label: "Purchase intent",
-  headline: "People want to buy the Enliven cleaner",
-  dot: assets.themeDot1,
+const av = assets.avatars;
+const thread = (
+  avatar: string,
+  name: string,
+  time: string,
+  text: string,
+  likes = "0 likes",
+  replies = "0 replies",
+): ThreadComment => ({ avatar, name, time, text, likes, replies });
+
+const highlight: Theme = {
+  id: "highlight",
+  label: "City recap",
+  headline: "Attendees say the Summer Series stops were a highlight of their summer, thanking lululemon for bringing the event to their city.",
+  dot: assets.themeDotGreen,
+  count: 17,
   comments: [
-    { avatar: assets.shakira, name: "@allthingsshakira", time: "2 days ago", text: "I totally need this to do the scrubbing for me 😥", likes: "2 likes", replies: "0 replies" },
-    { avatar: assets.avatars[7], name: "@babesontrend", time: "7 days ago", text: "Wow I need", likes: "1 like", replies: "0 replies" },
-    { avatar: assets.avatars[11], name: "@itskristinabuehrig", time: "6 days ago", text: "this looks like a lifesaver", likes: "1 like", replies: "0 replies" },
+    thread(av[0], "laforme_pilates", "2 days ago", "We loved being a part of St. Louis' Summer Series.", "2 likes"),
+    thread(av[1], "Polow’s World | Running, Wellness & Motivation", "2 days ago", "We Had A Great Summer Series in Atlanta 🙌🏾💙", "2 likes"),
+    thread(av[2], "Christa", "2 days ago", "Whistler crushed it too!", "1 like"),
+    thread(av[3], "Apryl Lopez", "2 days ago", "Was so honored to be a part of this! ❤️", "2 likes", "1 reply"),
+    thread(av[4], "Shayla Oulette Stonechild", "2 days ago", "Was one of my fave days of summer ❤️😍", "1 like"),
   ],
 };
 
-const cheaper: Theme = {
-  id: "cheaper",
-  label: "Cheaper alternatives",
-  headline: "The product isn't worth the money or the time",
+const hearts: Theme = {
+  id: "hearts",
+  label: "Emoji reactions",
+  headline: "A wave of heart-eyes and heart-only emoji reactions echoes the same enthusiasm without any text.",
+  dot: assets.themeDotGreen,
+  count: 9,
+  comments: [
+    thread(av[5], "Adriana Guads | Facilitator of Mindful Experiences", "2 days ago", "😍😍😍 @shayla0h", "2 likes"),
+    thread(av[6], "Mary Ann Morgan-Fried | Yoga & Wellness", "2 days ago", "Yes @lululemon ❤️", "1 like"),
+    thread(av[7], "Miracle | Seattle Content Creator", "2 days ago", "❤️🥰 this looks amazing", "1 like"),
+  ],
+};
+
+const nextCity: Theme = {
+  id: "nextCity",
+  label: "New cities",
+  headline: "A few commenters ask lululemon to bring the Summer Series to their own city next.",
+  dot: assets.themeDot1,
+  count: 3,
+  comments: [
+    thread(av[8], "hannahrobbii", "2 days ago", "Next time Chicago please😢", "2 likes"),
+    thread(av[9], "Greg Dawson", "2 days ago", "Summer Series UK please? 🙏🏼 😍🧘🏻‍♂️", "2 likes", "2 replies"),
+    thread(av[10], "Good Energy Club", "a day ago", "Summer series in Australia’s Capital, Canberra please", "0 likes"),
+  ],
+};
+
+const service: Theme = {
+  id: "service",
+  label: "Customer service",
+  headline: "One commenter raises an unresolved customer service complaint unrelated to the event content.",
   dot: assets.themeDot2,
+  count: 1,
   comments: [
-    { avatar: assets.avatars[9], name: "@occasionaloranges", time: "3 days ago", text: "u can get something like this for $15 at ur local tj maxx btw", likes: "2 likes", replies: "0 replies" },
-    { avatar: assets.avatars[2], name: "@mochi_potato12", time: "4 days ago", text: "Or hear me out, you wash it with soap and your hand, in the bathroom sink, without spending excess money you don't need to spend", likes: "5 likes", replies: "0 replies" },
-    { avatar: assets.avatars[4], name: "@tracy.cline1980", time: "5 days ago", text: "hot water and Dawn works great", likes: "0 likes", replies: "0 replies" },
+    thread(
+      av[11],
+      "benkinglondon",
+      "2 days ago",
+      "@lululemon the worst customer service I have ever experienced ordered nearly two weeks ago and paid for express delivery, phone line just cuts you off and no one responds on live chat! Don’t even know how to get a refund as the item still hasn’t shipped. Any help on a way forward would be much appreciated",
+      "0 likes",
+      "1 reply",
+    ),
   ],
 };
 
-const care: Theme = {
-  id: "care",
-  label: "Brush care",
-  headline: "The tutorial itself is being corrected",
-  dot: assets.themeDot3,
-  comments: [
-    { avatar: assets.avatars[3], name: "Cheryl Goguen", time: "7 days ago", text: "No don’t let them dry like that. Water will go down inside it and the metal will tarnish or bacteria will grow", likes: "5 likes", replies: "0 replies" },
-    { avatar: assets.avatars[5], name: "@chands", time: "6 days ago", text: "don't leave water sitting in the ferrule while it dries", likes: "2 likes", replies: "0 replies" },
-    { avatar: assets.avatars[6], name: "@emmalee", time: "5 days ago", text: "that drying position will get water inside and it can tarnish", likes: "1 like", replies: "0 replies" },
-  ],
-};
-
-const attack: Theme = {
-  id: "attack",
-  label: "Presenter thread",
-  headline: "Presenter is being attacked, and the community is pushing back",
-  dot: assets.themeDot1,
-  comments: [
-    { avatar: assets.avatars[1], name: "@morelikemak", time: "5 days ago", text: "Holly chopped", likes: "13 likes", replies: "0 replies" },
-    { avatar: assets.avatars[12], name: "@pawasocial", time: "3 days ago", text: "post urself", likes: "15 likes", replies: "0 replies" },
-    { avatar: assets.avatars[0], name: "@fluffy.qiqi", time: "3 days ago", text: "why are we being mean for no reason", likes: "8 likes", replies: "0 replies" },
-    { avatar: assets.avatars[8], name: "@citrusstoner", time: "7 days ago", text: "putting someones looks down doesnt make you any prettier", likes: "0 likes", replies: "0 replies" },
-    { avatar: assets.avatars[10], name: "@may_smith652", time: "6 days ago", text: "You are a miserable person", likes: "1 like", replies: "0 replies" },
-  ],
-};
-
-const praise: Theme = {
-  id: "praise",
-  label: "Photo praise",
-  headline: "The photo is getting strong praise",
+const lewis: Theme = {
+  id: "lewis",
+  label: "Lewis praise",
+  headline: "Fans praise Lewis by name, calling him funny and “irresistible cute,” and thank lululemon for the content.",
   dot: assets.themeDotGreen,
-  detail: "Commenters call her “stunning,” “iconic,” and “a timeless beauty.”",
+  count: 18,
   comments: [
-    { avatar: assets.post2.lindsey, name: "Lindsey Turcios", time: "a day ago", text: "She’s a timeless beauty 👏", likes: "1 like", replies: "1 reply" },
-    { avatar: assets.post2.huda, name: "Huda Kasim", time: "2 days ago", text: "She’s just stunning", likes: "1 like", replies: "1 reply" },
-    { avatar: assets.post2.chands, name: "Chands 🍒", time: "2 days ago", text: "So beautiful 😍", likes: "1 like", replies: "1 reply" },
-    { avatar: assets.post2.madison, name: "Madison Ortiz | Beauty & Fashion Creator", time: "2 days ago", text: "Love 😍", likes: "1 like", replies: "1 reply" },
-    { avatar: assets.post2.chloe, name: "Chloe Thorp", time: "17 hours ago", text: "🙌🏼 Absolutely iconic! ✨", likes: "0 likes", replies: "0 replies" },
-    { avatar: assets.post2.huda, name: "Huda Kasim", time: "2 days ago", text: "this photo is everything", likes: "1 like", replies: "0 replies" },
+    thread(av[0], "francineray", "a month ago", "Been waiting for this one! Lewis is hilarious", "50 likes", "5 replies"),
+    thread(av[1], "Selam Busson", "a month ago", "Sir Lewis Hamilton good at everything 🙌", "43 likes", "2 replies"),
+    thread(av[2], "Khans Goss", "a month ago", "Is there anything you can't do Lewis 😍", "7 likes", "3 replies"),
   ],
 };
 
-const cancel: Theme = {
-  id: "cancel",
-  label: "Cancel subscription",
-  headline: "Customers are struggling to cancel their subscriptions",
+const fire: Theme = {
+  id: "fire",
+  label: "Emoji reactions",
+  headline: "A wave of fire emojis, hearts, and claps registers pure excitement without any added text.",
+  dot: assets.themeDotGreen,
+  count: 11,
+  comments: [
+    thread(av[3], "georgia episkopou", "a month ago", "🔥🔥🔥", "50 likes", "5 replies"),
+    thread(av[4], "Pia Sountri", "a month ago", "❤️👏", "17 likes", "1 reply"),
+  ],
+};
+
+const questions: Theme = {
+  id: "questions",
+  label: "Product questions",
+  headline: "A few commenters ask practical questions, requesting the featured shirt, episode count, and a Chicago Summer Series stop.",
+  dot: assets.themeDot1,
+  count: 4,
+  comments: [
+    thread(av[5], "kenddddall_", "a month ago", "What is the shirt called? I can't find it on the website", "14 likes"),
+    thread(av[6], "Greg Dawson", "a month ago", "Next time Chicago please", "2 likes"),
+  ],
+};
+
+const complaints: Theme = {
+  id: "complaints",
+  label: "Order issues",
+  headline: "Two commenters raise complaints unrelated to the video's content.",
   dot: assets.themeDot2,
-  detail: "One commenter calls the process “so difficult,” while others direct them to customer support.",
+  count: 2,
   comments: [
-    { avatar: assets.post2.lisbeth, name: "Lisbeth Ceballos", time: "2 days ago", text: "Make a tutorial for how to cancel Ipsy subscription:) it's so difficult", likes: "8 likes", replies: "4 replies" },
-    { avatar: assets.ipsy, name: "ipsy", time: "2 days ago", text: "Hi! Please DM us and we'll help you cancel.", likes: "2 likes", replies: "1 reply" },
-  ],
-};
-
-const lookalike: Theme = {
-  id: "lookalike",
-  label: "Look-alike contact",
-  headline: "A support email that isn’t on Ipsy’s domain",
-  dot: assets.themeDot3,
-  detail: "A commenter replies with a support email that isn’t on Ipsy’s own domain.",
-  comments: [
-    { avatar: assets.avatars[9], name: "rocky", time: "3 days ago", text: "email ipsysupport-help@gmail.com they got back to me in like 10 min", likes: "1 like", replies: "2 replies" },
-  ],
-};
-
-const elf: Theme = {
-  id: "elf",
-  label: "Brand engagement",
-  headline: "e.l.f. cosmetics engages playfully on the post",
-  dot: assets.themeDotGreen,
-  detail: "e.l.f. comments “Real as e.l.f.” and Ipsy replies in kind.",
-  comments: [
-    { avatar: assets.post3.elf, name: "e.l.f. Cosmetics", time: "7 days ago", text: "Real as e.l.f. 😭😭", likes: "1 like", replies: "1 reply" },
-  ],
-};
-
-const relate: Theme = {
-  id: "relate",
-  label: "Relatable",
-  headline: "Content feels relatable with “this is so me” reactions",
-  dot: assets.themeDotGreen,
-  comments: [
-    { avatar: assets.post3.ashley, name: "Ashley 🫶🏻", time: "7 days ago", text: "Why is this me omg 😂😂", likes: "1 like", replies: "1 reply" },
-    { avatar: assets.post3.dandan, name: "丹丹", time: "7 days ago", text: "So real!! 😭😅", likes: "1 like", replies: "1 reply" },
-    { avatar: assets.post3.ashley, name: "Ashley 🫶🏻", time: "7 days ago", text: "this is so me", likes: "1 like", replies: "0 replies" },
-  ],
-};
-
-const disco: Theme = {
-  id: "disco",
-  label: "Disco aside",
-  headline: "One comment makes an unrelated “disco disco” reference",
-  dot: assets.themeDot1,
-  comments: [
-    { avatar: assets.post3.holly, name: "ASHLEY HOLLY", time: "6 days ago", text: "disco disco 🕺🏻", likes: "0 likes", replies: "0 replies" },
+    thread(
+      av[7],
+      "blackur1314",
+      "a month ago",
+      "Why do you always cancel my order? I placed three orders, all of which were cancelled by you.",
+      "9 likes",
+      "1 reply",
+    ),
+    thread(
+      av[8],
+      "Maja",
+      "a month ago",
+      "@lululemon Maybe instead of posting nonsense you can better train your customer service to handle issues when items in a pick up order a missing.",
+      "7 likes",
+    ),
   ],
 };
 
 export const posts: Record<PostId, Post> = {
   "1": {
     id: "1",
-    label: "Ipsy 1",
-    dateShort: "Aug 17 2026",
-    dateLong: "Aug 17, 2026",
-    followers: "3.3M",
-    community: "Beauty Community",
-    overview: "A creator shows how to clean makeup brushes and sponges using the Ace Beaute Enliven™ Makeup Brush & Sponge Cleaner.",
-    captionLead: "Your brushes work hard... show them a little love. 🫧 Here's how to clean them the right way using ",
-    captionMid: " Enliven™ Makeup Brush & Sponge Cleaner. Did you snag these Mega Drop Shop finds? Mega Drop Shop Products: ",
-    mentions: ["@acebeaute", "@realperfectioncosmetics", "@acebeaute"],
-    brands: ["@realperfectioncosmetics", "@acebeaute"],
-    metrics: metrics(["328.3K", "2.68K", "29", "0", "68", "2.77K", "0.8%", "0.1%"]),
+    label: "Lululemon 1",
+    dateShort: "Aug 24 2026",
+    dateLong: "Aug 24, 2026",
+    followers: "5.86M",
+    community: "Pilates",
+    overview: "Lululemon's summer series included Pilates classes, inviting 50,000 participants across North America to move and connect.",
+    captionLead: "",
+    captionMid: "",
+    mentions: ["@shayla0h"],
+    brands: ["@shayla0h"],
+    captionSegments: [
+      {
+        text: "Because one intentional flow can shift everything. This summer, 50,000 of you rolled out your mats, slowed down, and moved together. Through yoga, Pilates, and Sculpt classes hosted across North America, we created space to connect, reset, and feel. Thank you to the instructors, Ambassadors, and thousands of you who joined us. See you next summer?",
+      },
+    ],
+    thumb: assets.post1.thumb,
     media: "video",
+    mediaSrc: assets.post1.video,
+    duration: "00:00 / 00:26",
+    metrics: metrics(["107.72K", "1.65K", "69", "0", "89", "1.81K", "1.7%", "0%"]),
     postSummary:
-      "The video demonstrates how to clean makeup brushes and sponges using the Ace Beaute Enliven™ Makeup Brush & Sponge Cleaner. The creator shows the device in action, emphasizing its ability to clean thoroughly between bristles and also clean sponges. The video highlights that keeping brushes clean can improve makeup application. The creator also mentions that the device helps extend the life of brushes by allowing them to dry properly. The video concludes by promoting the product as an easy way to enhance a makeup routine.",
-    brandFocus: "real perfection cosmetics",
-    claimTone: "Neutral",
-    claimCopy: "No brand claims found",
-    commentCount: 29,
+      "This video showcases a summer yoga, Pilates, and Sculpt class event hosted outdoors, likely on a waterfront with a city skyline in the background. It features instructors and participants of diverse backgrounds engaging in various fitness activities. The overarching message emphasizes creating space for connection, resetting, and feeling, highlighting the positive impact of intentional movement. The event appears to be part of a larger series, possibly organized by Lululemon, as suggested by on-screen text and the tagged creator, Shayla Oulette Stonechild, who is a prominent figure in the wellness community. The video aims to evoke feelings of community, mindfulness, and personal transformation through physical activity.",
+    brandFocus: "lululemon",
+    claimTone: "Positive",
+    claimCopy:
+      "The video showcases participants wearing athletic apparel during the fitness session, but it never comments on the apparel itself; the focus is on community, mindfulness, and the event's ambiance. The implied presence of Lululemon clothing is merely incidental, with no direct evaluation of the brand's products or services. Thus, overall sentiment is positive due to the uplifting event messaging, but it is not a direct endorsement of Lululemon.",
+    commentCount: 31,
     pulled: "last pulled today, 8:00am",
-    score: 4,
-    sentiment: { positive: 30, neutral: 25, negative: 45 },
+    score: 9,
+    scoreTone: "positive",
+    sentiment: { positive: 90, neutral: 6, negative: 3 },
     paragraph: [
-      "Reactions to this brush-cleaner tutorial lean mixed. A few commenters say they want to buy the Enliven cleaner ",
-      "buy",
-      ", while a recurring pushback thread argues cheaper alternatives work just as well: soap and water, or a $15 dupe from TJ Maxx ",
-      "cheaper",
-      ". One comment flags a real care issue, warning that letting the brush dry with water inside can tarnish the metal or grow bacteria ",
-      "care",
-      ". The largest thread on the post, though, isn't about the product at all: it's commenters attacking the presenter and four others defending her ",
-      "attack",
+      "Attendees overwhelmingly call their local Summer Series stop a highlight of the summer, several naming their city directly, including St. Louis, Atlanta, and Whistler ",
+      "highlight",
+      ". A separate wave of heart and heart-eyes emoji reactions carries the same enthusiasm with no accompanying text ",
+      "hearts",
+      ". A few commenters ask lululemon to bring the series to a new city next, naming Chicago and Canberra ",
+      "nextCity",
+      ". One commenter raises an unresolved customer service complaint, describing a nearly two-week wait on an order paid for express delivery with no response on the phone line or live chat ",
+      "service",
       ".",
     ],
-    themes: [buy, cheaper, care, attack],
-    themeList: [
-      {
-        ...cheaper,
-        headline: "Customers question whether the cleaner is worth the price",
-        detail: "Commenters say cheaper options like soap and water or a $15 TJ Maxx dupe work just as well.",
-      },
-      {
-        ...care,
-        headline: "Viewers flag a potential brush-care issue",
-        dot: assets.themeDot2,
-        detail: "Commenters warn that leaving water inside the brush while it dries could tarnish the metal or grow bacteria.",
-      },
-      {
-        ...attack,
-        headline: "Criticism of the presenter sparks pushback",
-        detail: "The largest thread is unrelated to the product, with commenters attacking the presenter and others defending her.",
-      },
-      {
-        ...buy,
-        headline: "Some viewers show purchase interest",
-        dot: assets.themeDotGreen,
-        detail: "A few commenters say they want to buy the Enliven cleaner.",
-      },
-    ],
+    themes: [highlight, hearts, nextCity, service],
+    themeList: [highlight, hearts, nextCity, service],
     comments: [
-      { avatar: assets.avatars[1], name: "@morelikemak", time: "5 days ago", text: "Holly chopped", likes: "13 likes" },
-      { avatar: assets.avatars[12], name: "@pawasocial", time: "3 days ago", text: "post urself", likes: "15 likes" },
-      { avatar: assets.avatars[0], name: "@fluffy.qiqi", time: "3 days ago", text: "why are we being mean for no reason", likes: "8 likes" },
-      { avatar: assets.avatars[2], name: "@mochi_potato12", time: "4 days ago", text: "Or hear me out, you wash it with soap and your hand, in the bathroom sink, without spending excess money you don't need to spend", likes: "5 likes" },
-      { avatar: assets.avatars[3], name: "Cheryl Goguen", time: "7 days ago", text: "No don’t let them dry like that. Water will go down inside it and the metal will tarnish or bacteria will grow", likes: "5 likes" },
-      { avatar: assets.shakira, name: "@allthingsshakira", time: "7 days ago", text: "I totally need this to do the scrubbing for me 😥", likes: "2 likes" },
-      { avatar: assets.avatars[6], name: "emmalee ⭐︎", time: "2 days ago", image: assets.commentImage, likes: "2 replies" },
-      { avatar: assets.avatars[9], name: "@occasionaloranges", time: "3 days ago", text: "u can get something like this for $15 at ur local tj maxx btw", likes: "2 likes" },
-      { avatar: assets.avatars[7], name: "@babesontrend", time: "7 days ago", text: "Wow I need", likes: "1 like" },
-      { avatar: assets.avatars[11], name: "@itskristinabuehrig", time: "6 days ago", text: "this looks like a lifesaver", likes: "1 like" },
-      { avatar: assets.avatars[10], name: "@may_smith652", time: "6 days ago", text: "You are a miserable person", likes: "1 like" },
-      { avatar: assets.avatars[13], name: "@melez_2pou", time: "20 hours ago", text: "Nah this is to much time", likes: "1 like" },
-      { avatar: assets.avatars[8], name: "@citrusstoner", time: "7 days ago", text: "putting someones looks down doesnt make you any prettier", likes: "0 likes" },
-      { avatar: assets.avatars[4], name: "@tracy.cline1980", time: "5 days ago", text: "hot water and Dawn works great", likes: "0 likes" },
+      { avatar: av[9], name: "Greg Dawson", time: "2 days ago", text: "Summer Series UK please? 🙏🏼 😍🧘🏻‍♂️", likes: "2 likes 2 replies" },
+      { avatar: av[8], name: "hannahrobbii", time: "2 days ago", text: "Next time Chicago please😢", likes: "2 likes" },
+      { avatar: av[1], name: "Polow’s World | Running, Wellness & Motivation", time: "2 days ago", text: "We Had A Great Summer Series in Atlanta 🙌🏾💙", likes: "2 likes" },
+      { avatar: av[0], name: "laforme_pilates", time: "2 days ago", text: "We loved being a part of St. Louis' Summer Series.", likes: "2 likes" },
+      { avatar: av[11], name: "benkinglondon", time: "2 days ago", text: "the phone line just cuts you off and no one responds on live chat", likes: "1 reply" },
+      { avatar: av[4], name: "Shayla Oulette Stonechild", time: "2 days ago", text: "Was one of my fave days of summer ❤️😍", likes: "1 like" },
     ],
     transcript: [
-      { time: "00:00", text: "get right in between those bristles, so you get a really clean brush every time." },
-      { time: "00:00", text: "If you always skip washing your makeup brushes, this might be why your makeup's not sitting right." },
-      { time: "00:00", text: "This is the perfect set." },
-      { time: "00:00", text: "Not only are you getting everything you need to do your full face, but being able to keep them clean, you're going to get a lot more life out of your brushes." },
-      { time: "00:14", text: "The built-in scrubbing pad makes it so much easier to get right in between those bristles, so you get a really clean brush every time." },
-      { time: "00:14", text: "Not only does this clean your makeup brushes, but you can also clean your sponges." },
-      { time: "00:14", text: "Once it's clean, you can out the water and then place it in the top to dry." },
-      { time: "00:33", text: "This is the easiest way to give your makeup routine the glow up it needed." },
+      { time: "00:00", text: "In a world full of distractions, we created space for our community to slow down, breathe, and move with intention." },
+      { time: "00:07", text: "A place to feel, to move, to sweat, and to connect. Whether you're seeking clarity, release, or simply a reset." },
+      { time: "00:18", text: "Find the space to feel. Because one intentional flow can shift everything." },
     ],
   },
   "2": {
     id: "2",
-    label: "Ipsy 2",
-    dateShort: "Aug 22 2026",
-    dateLong: "Aug 22, 2026",
-    followers: "3.3M",
-    community: "Beauty Community",
-    overview: "",
+    label: "Lululemon 2",
+    dateShort: "Jul 15 2026",
+    dateLong: "Jul 15, 2026",
+    followers: "5.86M",
+    community: "Sports Ambassadors",
+    overview: "Lewis Hamilton, a Lululemon sports ambassador, engages in a golf wager with Min Woo Lee.",
     captionLead: "",
     captionMid: "",
-    mentions: [],
-    brands: [],
-    captionText: "She is MOTHER. 😍 Image credit: Getty",
-    thumb: assets.post2.thumb,
-    media: "carousel",
-    slides: [...assets.post2.slides],
-    metrics: [
-      { icon: assets.likes, value: "2.24K", label: "Likes" },
-      { icon: assets.comments, value: "15", label: "Comments" },
-      { icon: assets.saves, value: "0", label: "Saves" },
-      { icon: assets.shares, value: "0", label: "Shares" },
-      { icon: assets.reposts, value: "2.26K", label: "Reposts" },
-      { icon: assets.views, value: "N/A", label: "Views" },
-      { icon: assets.er, value: "0.1%", label: "Engagement rate" },
-    ],
-    postSummary:
-      "The carousel features actress Anne Hathaway, showcasing her best beauty moments from the year. Each slide highlights a specific makeup look or hairstyle, with text overlays describing it. For example, one slide shows her with sunglasses and a leopard print coat, labeled 'Anne Hathaway's Best Beauty Moments This Year'. Another slide focuses on her eye makeup, described as 'Brown Monochromatic Shadow'. Other looks include 'Soft Goddess Updo', 'Modern Hollywood Glam', 'Cherry Red Lip', 'Chic Minimalist Flush', 'Blurred Red Lip', and 'Coral Red Lip'. The 'IPSY' logo is visible on several slides, indicating a partnership or feature by the beauty subscription service. The caption simply states 'She is MOTHER. 😍' and credits Getty for the image.",
-    brandFocus: "ipsy",
-    claimTone: "Neutral",
-    claimCopy: "No brand claims found",
-    commentCount: 15,
-    pulled: "last pulled today, 8:00am",
-    score: 7,
-    sentiment: { positive: 78, neutral: 0, negative: 22 },
-    paragraph: [
-      "Reactions to this photo lean overwhelmingly positive, with commenters calling her “stunning,” “iconic,” and “a timeless beauty” ",
-      "praise",
-      ". The thread worth flagging is smaller but more consequential: a commenter asks for a tutorial on canceling a subscription and calls the process “so difficult” ",
-      "cancel",
-      ". In that same thread, another commenter replies with a support email that isn’t on Ipsy’s own domain, worth checking as a possible look-alike contact ",
-      "lookalike",
-      ".",
-    ],
-    themes: [praise, cancel, lookalike],
-    themeList: [
-      {
-        ...cancel,
-        comments: [...cancel.comments, ...lookalike.comments],
-      },
-      praise,
-    ],
-    comments: [
-      { avatar: assets.post2.lisbeth, name: "Lisbeth Ceballos", time: "2 days ago", text: "Make a tutorial for how to cancel Ipsy subscription:) it's so difficult", likes: "8 likes 4 replies" },
-      { avatar: assets.post2.lindsey, name: "Lindsey Turcios", time: "a day ago", text: "She’s a timeless beauty 👏", likes: "1 like 1 reply" },
-      { avatar: assets.post2.huda, name: "Huda Kasim", time: "2 days ago", text: "She’s just stunning", likes: "1 like 1 reply" },
-      { avatar: assets.post2.chands, name: "Chands 🍒", time: "2 days ago", text: "So beautiful 😍", likes: "1 like 1 reply" },
-      { avatar: assets.post2.madison, name: "Madison Ortiz | Beauty & Fashion Creator", time: "2 days ago", text: "Love 😍", likes: "1 like 1 reply" },
-      { avatar: assets.post2.chloe, name: "Chloe Thorp", time: "17 hours ago", text: "🙌🏼 Absolutely iconic! ✨", likes: "0 likes" },
-    ],
-    transcript: [],
-  },
-  "3": {
-    id: "3",
-    label: "Ipsy 3",
-    dateShort: "Aug 17 2026",
-    dateLong: "Aug 17, 2026",
-    followers: "3.3M",
-    community: "Beauty Community",
-    overview:
-      "A creator humorously contrasts aspirational 'hot girl summer' activities with daily chores and work, while showcasing IPSY beauty products.",
-    captionLead: "",
-    captionMid: "",
-    mentions: ["@toofaced", "@lauragellerbeauty", "@tartecosmetics"],
-    brands: ["@toofaced", "@tartecosmetics", "@lauragellerbeauty"],
+    mentions: ["@lewishamilton", "@minwoo27lee"],
+    brands: ["@lewishamilton", "@minwoo27lee"],
     captionSegments: [
-      { text: "We're just trying to have a hot girl summer. 🥲 IPSY Products: " },
-      { text: "@toofaced", mention: true },
-      { text: " Too Faced Cosmetics Cloud Crush Berry Dream Blush " },
-      { text: "@lauragellerbeauty", mention: true },
-      { text: " Laura Geller On & On Lashes Lengthening Mascara in Black " },
-      { text: "@tartecosmetics", mention: true },
-      { text: " Tarte™ Maracuja Juicy Lip Vinyl Gloss" },
+      { text: "Who dropped and gave 15—" },
+      { text: "@lewishamilton", mention: true },
+      { text: " or " },
+      { text: "@minwoo27lee", mention: true },
+      { text: "? Watch the full episode on YouTube and find out—link in bio ⛳️" },
     ],
-    thumb: assets.post3.image,
-    media: "image",
-    mediaSrc: assets.post3.image,
-    metrics: [
-      { icon: assets.likes, value: "400", label: "Likes" },
-      { icon: assets.comments, value: "10", label: "Comments" },
-      { icon: assets.saves, value: "0", label: "Saves" },
-      { icon: assets.shares, value: "0", label: "Shares" },
-      { icon: assets.reposts, value: "410", label: "Reposts" },
-      { icon: assets.views, value: "N/A", label: "Views" },
-      { icon: assets.er, value: "0%", label: "Engagement rate" },
-    ],
+    thumb: assets.post2.luluThumb,
+    media: "video",
+    mediaSrc: assets.post2.video,
+    duration: "00:00 / 00:20",
+    metrics: metrics(["2.32M", "6.01K", "193", "0", "462", "6.66K", "0.3%", "0.1%"]),
     postSummary:
-      "The image is divided into two sections. The top section, labeled 'Where I'm at mentally:', displays items associated with leisure and fun: a cocktail, a disco ball, a curling iron, a digital camera, a blush compact, mascara, and a lipstick. The bottom section, labeled 'What I'm actually doing:', shows items representing daily chores and work: a full grocery cart, a laptop, a smartphone displaying the Slack logo, and a logo for Asana. The caption reads 'We're just trying to have a hot girl summer. 🥲'. The post also lists specific IPSY products: Too Faced Cosmetics Cloud Crush Berry Dream Blush, Laura Geller On & On Lashes Lengthening Mascara in Black, and Tarte Maracuja Juicy Lip Vinyl Gloss.",
-    brandFocus: "ipsy",
+      "The video features a golf interaction between Lewis Hamilton and Min Woo Lee. It begins with Lewis Hamilton proposing a wager: the loser has to do 15 push-ups. The condition is for the shot closest to the hole. Min Woo Lee counters, suggesting a handicap of four shots if it's a one-on-one situation. Hamilton negotiates down to three shots, questioning Lee's confidence. Hamilton then proceeds to take his shot, eliciting a surprised 'Oh, wow' from Lee. Hamilton is seen wearing a black polo shirt with a Lululemon logo and a white cap, while Lee is in a light-colored polo shirt and a cap. The video is set on a golf course with a body of water visible in the background.",
+    brandFocus: "lululemon",
     claimTone: "Neutral",
     claimCopy: "No brand claims found",
-    commentCount: 10,
+    commentCount: 37,
     pulled: "last pulled today, 8:00am",
-    score: 8,
+    score: 9,
     scoreTone: "positive",
-    sentiment: { positive: 80, neutral: 15, negative: 5 },
+    sentiment: { positive: 78, neutral: 16, negative: 5 },
     paragraph: [
-      "The most notable comment here isn't from a customer at all: e.l.f. cosmetics, a separate brand's verified account, comments playfully on the post (\"Real as e.l.f.\"), and Ipsy replies in kind ",
-      "elf",
-      ". Otherwise reactions are relatable, low-stakes humor about the video itself, people saying it feels like them or \"so real\" ",
-      "relate",
-      ". One aside references dancing/disco that doesn't clearly tie to the product ",
-      "disco",
+      "Fans repeatedly praise Lewis by name, calling him funny and “irresistible cute,” with several saying this is one of lululemon’s best-received videos yet ",
+      "lewis",
+      ". A separate wave of fire, heart, and clap emoji reactions carries the same energy with no accompanying text ",
+      "fire",
+      ". A handful of practical questions come up too, about the featured shirt, episode count, and a request to bring Summer Series to Chicago ",
+      "questions",
+      ". Two commenters raise real complaints unrelated to the video itself ",
+      "complaints",
       ".",
     ],
-    themes: [elf, relate, disco],
-    themeList: [elf, relate, disco],
+    themes: [lewis, fire, questions, complaints],
+    themeList: [lewis, fire, questions, complaints],
     comments: [
-      { avatar: assets.post3.elf, name: "e.l.f. Cosmetics", time: "7 days ago", text: "Real as e.l.f. 😭😭", likes: "1 like 1 reply" },
-      { avatar: assets.post3.ashley, name: "Ashley 🫶🏻", time: "7 days ago", text: "Why is this me omg 😂😂", likes: "1 like 1 reply" },
-      { avatar: assets.post3.dandan, name: "丹丹", time: "7 days ago", text: "So real!! 😭😅", likes: "1 like 1 reply" },
-      { avatar: assets.post3.dani, name: "Dani Valparaiso Fattaleh", time: "7 days ago", text: "Not the slacks", likes: "1 like 1 reply" },
-      { avatar: assets.post3.holly, name: "ASHLEY HOLLY", time: "6 days ago", text: "disco disco 🕺🏻", likes: "0 likes" },
+      { avatar: av[0], name: "francineray", time: "a month ago", text: "Been waiting for this one! Lewis is hilarious", likes: "50 likes 5 replies" },
+      { avatar: av[1], name: "Selam Busson", time: "a month ago", text: "Sir Lewis Hamilton good at everything 🙌", likes: "43 likes 2 replies" },
+      { avatar: av[5], name: "kenddddall_", time: "a month ago", text: "What is the shirt called? I can't find it on the website", likes: "14 likes" },
+      { avatar: av[7], name: "blackur1314", time: "a month ago", text: "Why do you always cancel my order? I placed three orders, all of which were cancelled by you.", likes: "9 likes 1 reply" },
     ],
-    transcript: [],
+    transcript: [
+      { time: "00:00", text: "Alright, what about a bit of a wager on this one? Closest to the hole... 15 push-ups right on the spot. Right here." },
+      { time: "00:05", text: "Well, I don't think it's fair if it's one ball to one." },
+      { time: "00:11", text: "Four shots? Let's do three. Three? Ok. You're that confident?" },
+      { time: "00:16", text: "Oh, wow." },
+    ],
   },
 };
