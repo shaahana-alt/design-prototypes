@@ -54,6 +54,9 @@ jobs:
           if [ -f pages/gate.html ]; then
             cp pages/gate.html site/index.html
           fi
+          if [ -f pages/plot-logo.png ]; then
+            cp pages/plot-logo.png site/plot-logo.png
+          fi
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site
