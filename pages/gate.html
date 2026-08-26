@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Prototype</title>
+    <style>
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: ui-sans-serif, system-ui, sans-serif;
+        color: #230603;
+        background: #fff;
+      }
+      form {
+        width: min(360px, calc(100vw - 48px));
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      label {
+        font-size: 14px;
+        font-weight: 600;
+      }
+      input {
+        width: 100%;
+        height: 44px;
+        padding: 0 14px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        font: inherit;
+        font-size: 16px;
+        color: #230603;
+      }
+      input:focus {
+        outline: 2px solid #230603;
+        outline-offset: 2px;
+      }
+      button {
+        height: 44px;
+        border: 0;
+        border-radius: 100px;
+        background: #230603;
+        color: #fff;
+        font: inherit;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .error {
+        min-height: 1.25em;
+        margin: 0;
+        font-size: 14px;
+        color: #8a1f11;
+      }
+    </style>
+  </head>
+  <body>
+    <form id="gate" autocomplete="off">
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" autofocus />
+      <button type="submit">Enter</button>
+      <p class="error" id="error" hidden>That password doesn’t match a prototype.</p>
+    </form>
+    <script>
+      const routes = {
+        ipsy: "./main/",
+        fabletics: "./fabletics/",
+        lululemon: "./lululemon/",
+      };
+      const form = document.getElementById("gate");
+      const input = document.getElementById("password");
+      const error = document.getElementById("error");
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const dest = routes[input.value.trim().toLowerCase()];
+        if (!dest) {
+          error.hidden = false;
+          input.select();
+          return;
+        }
+        window.location.href = dest;
+      });
+    </script>
+  </body>
+</html>
