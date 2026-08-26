@@ -10,9 +10,9 @@ function CreatorMeta({ date, followers }: { date: string; followers: string }) {
   return (
     <div className="creator-row">
       <span className="avatar">
-        <img src={assets.ipsy} alt="ipsy" width={20} height={20} />
+        <img src={assets.lululemon} alt="lululemon" width={20} height={20} />
       </span>
-      <p className="handle">ipsy</p>
+      <p className="handle">lululemon</p>
       <p className="dot">•</p>
       <span className="followers">
         <Icon src={assets.followers} size={12} />
@@ -71,7 +71,7 @@ export default function App() {
               <img
                 className="player-frame"
                 src={post.media === "carousel" ? slides[slide] : post.mediaSrc ?? assets.video}
-                alt={post.media === "video" ? "ipsy makeup tutorial" : "ipsy post"}
+                alt={post.media === "video" ? "lululemon video" : "lululemon post"}
                 width={299}
                 height={post.media === "video" ? 532 : 374}
               />
@@ -132,7 +132,7 @@ export default function App() {
                         <Icon src={assets.fwd} size={24} />
                       </button>
                     </div>
-                    <p className="time-label">00:00 / 00:44</p>
+                    <p className="time-label">{post.duration ?? "00:00 / 00:44"}</p>
                     <div className="control-group">
                       <button type="button" aria-label="Volume">
                         <Icon src={assets.volume} size={24} />
