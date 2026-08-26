@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches: [main, fabletics, design-tweaks]
   workflow_dispatch:
 
 permissions:
@@ -19,17 +19,85 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
-      - run: npm run build
-        env:
-          GITHUB_PAGES: "true"
+      - name: Build each branch into a subfolder
+        run: |
+          set -euo pipefail
+          mkdir -p site
+          touch site/.nojekyll
+          git fetch origin main fabletics design-tweaks --prune || true
+
+          links=""
+          for branch in main fabletics design-tweaks; do
+            if ! git rev-parse --verify "origin/${branch}" >/dev/null 2>&1; then
+              echo "Skipping ${branch} (not on origin)"
+              continue
+            fi
+
+            work="${RUNNER_TEMP}/build-${branch}"
+            rm -rf "$work"
+            git worktree add --detach "$work" "origin/${branch}"
+            (
+              cd "$work"
+              npm ci
+              npx vite build --base "/design-prototypes/${branch}/" --outDir dist
+              mkdir -p "${GITHUB_WORKSPACE}/site/${branch}"
+              cp -R dist/. "${GITHUB_WORKSPACE}/site/${branch}/"
+            )
+            git worktree remove --force "$work" || rm -rf "$work"
+            links="${links}<li><a href=\"./${branch}/\">${branch}</a></li>"
+          done
+
+          cat > site/index.html << HTML
+          <!DOCTYPE html>
+          <html lang="en">
+            <head>
+              <meta charset="utf-8" />
+              <meta name="viewport" content="width=device-width, initial-scale=1" />
+              <title>Design prototypes</title>
+              <style>
+                body {
+                  margin: 0;
+                  min-height: 100vh;
+                  font-family: ui-sans-serif, system-ui, sans-serif;
+                  color: #230603;
+                  background: #fff;
+                }
+                main {
+                  max-width: 40rem;
+                  margin: 0 auto;
+                  padding: 48px 24px;
+                }
+                h1 { font-size: 1.5rem; font-weight: 600; }
+                p { color: #6b6b6b; line-height: 1.5; }
+                ul { padding: 0; list-style: none; }
+                li { margin: 0 0 12px; }
+                a {
+                  color: #230603;
+                  font-weight: 600;
+                  text-underline-offset: 3px;
+                }
+              </style>
+            </head>
+            <body>
+              <main>
+                <h1>Design prototypes</h1>
+                <p>Each branch is hosted in its own folder so you can compare versions.</p>
+                <ul>
+                  ${links}
+                </ul>
+              </main>
+            </body>
+          </html>
+          HTML
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: site
 
   deploy:
     needs: build
