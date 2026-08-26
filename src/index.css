@@ -759,7 +759,7 @@ img {
 .theme-headline {
   margin: 0;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 500;
   line-height: 1.2;
   color: var(--color-black);
   text-wrap: pretty;
