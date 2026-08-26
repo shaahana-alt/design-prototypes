@@ -17,6 +17,7 @@ type CommentCountProps = {
   open: boolean;
   align?: "center" | "end";
   labeled?: boolean;
+  count?: number;
   onOpen: (id: string) => void;
   onClose: () => void;
 };
@@ -27,6 +28,7 @@ export function CommentCount({
   open,
   align = "center",
   labeled = false,
+  count,
   onOpen,
   onClose,
 }: CommentCountProps) {
@@ -34,9 +36,10 @@ export function CommentCount({
   const hideTimer = useRef<number | undefined>(undefined);
   const comment = comments[index];
   const total = comments.length;
+  const displayCount = count ?? total;
   const pillLabel = labeled
-    ? `${total} comment${total === 1 ? "" : "s"}`
-    : String(total);
+    ? `${displayCount} comment${displayCount === 1 ? "" : "s"}`
+    : String(displayCount);
 
   useEffect(() => {
     if (!open) setIndex(0);
