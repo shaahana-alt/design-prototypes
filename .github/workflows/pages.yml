@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches: [main, fabletics, lululemon]
   workflow_dispatch:
 
 permissions:
@@ -19,17 +19,44 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
-      - run: npm run build
-        env:
-          GITHUB_PAGES: "true"
+      - name: Build each branch into a subfolder
+        run: |
+          set -euo pipefail
+          mkdir -p site
+          touch site/.nojekyll
+          git fetch origin main fabletics lululemon --prune || true
+
+          for branch in main fabletics lululemon; do
+            if ! git rev-parse --verify "origin/${branch}" >/dev/null 2>&1; then
+              echo "Skipping ${branch} (not on origin)"
+              continue
+            fi
+
+            work="${RUNNER_TEMP}/build-${branch}"
+            rm -rf "$work"
+            git worktree add --detach "$work" "origin/${branch}"
+            (
+              cd "$work"
+              npm ci
+              npx vite build --base "/design-prototypes/${branch}/" --outDir dist
+              mkdir -p "${GITHUB_WORKSPACE}/site/${branch}"
+              cp -R dist/. "${GITHUB_WORKSPACE}/site/${branch}/"
+            )
+            git worktree remove --force "$work" || rm -rf "$work"
+          done
+
+          if [ -f pages/gate.html ]; then
+            cp pages/gate.html site/index.html
+          fi
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: site
 
   deploy:
     needs: build
