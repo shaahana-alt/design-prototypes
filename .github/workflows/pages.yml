@@ -2,7 +2,9 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main, fabletics, lululemon]
+    # github-pages environment only allows these branches to deploy.
+    # lululemon is still built into ./lululemon/ whenever this workflow runs.
+    branches: [main, fabletics]
   workflow_dispatch:
 
 permissions:
@@ -51,11 +53,16 @@ jobs:
             git worktree remove --force "$work" || rm -rf "$work"
           done
 
-          if [ -f pages/gate.html ]; then
+          if git cat-file -e origin/lululemon:pages/gate.html 2>/dev/null; then
+            git show origin/lululemon:pages/gate.html > site/index.html
+            if git cat-file -e origin/lululemon:pages/plot-logo.png 2>/dev/null; then
+              git show origin/lululemon:pages/plot-logo.png > site/plot-logo.png
+            fi
+          elif [ -f pages/gate.html ]; then
             cp pages/gate.html site/index.html
-          fi
-          if [ -f pages/plot-logo.png ]; then
-            cp pages/plot-logo.png site/plot-logo.png
+            if [ -f pages/plot-logo.png ]; then
+              cp pages/plot-logo.png site/plot-logo.png
+            fi
           fi
       - uses: actions/upload-pages-artifact@v3
         with:
@@ -63,6 +70,7 @@ jobs:
 
   deploy:
     needs: build
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/fabletics'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
