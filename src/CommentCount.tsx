@@ -17,7 +17,6 @@ type CommentCountProps = {
   open: boolean;
   align?: "center" | "end";
   labeled?: boolean;
-  count?: number;
   onOpen: (id: string) => void;
   onClose: () => void;
 };
@@ -28,15 +27,13 @@ export function CommentCount({
   open,
   align = "center",
   labeled = false,
-  count,
   onOpen,
   onClose,
 }: CommentCountProps) {
   const [index, setIndex] = useState(0);
   const hideTimer = useRef<number | undefined>(undefined);
   const comment = comments[index];
-  const shown = comments.length;
-  const total = count ?? shown;
+  const total = comments.length;
   const pillLabel = labeled
     ? `${total} comment${total === 1 ? "" : "s"}`
     : String(total);
@@ -55,8 +52,8 @@ export function CommentCount({
     hideTimer.current = window.setTimeout(onClose, 400);
   };
 
-  const previous = () => setIndex((current) => (current - 1 + shown) % shown);
-  const next = () => setIndex((current) => (current + 1) % shown);
+  const previous = () => setIndex((current) => (current - 1 + total) % total);
+  const next = () => setIndex((current) => (current + 1) % total);
 
   return (
     <span
@@ -91,19 +88,19 @@ export function CommentCount({
           className="comment-tooltip"
           id={`comment-tooltip-${id}`}
           role="dialog"
-          aria-label={`Relevant comments, ${index + 1} of ${shown}`}
+          aria-label={`Relevant comments, ${index + 1} of ${total}`}
         >
           <div className="comment-tooltip-bar">
             <div className="comment-tooltip-nav">
-              <button type="button" aria-label="Previous comment" onClick={previous} disabled={shown <= 1}>
+              <button type="button" aria-label="Previous comment" onClick={previous} disabled={total <= 1}>
                 <Icon src={assets.arrowLeft} size={16} />
               </button>
-              <button type="button" aria-label="Next comment" onClick={next} disabled={shown <= 1}>
+              <button type="button" aria-label="Next comment" onClick={next} disabled={total <= 1}>
                 <Icon src={assets.arrowRight} size={16} />
               </button>
             </div>
             <p className="comment-tooltip-page">
-              {index + 1}/{shown}
+              {index + 1}/{total}
             </p>
           </div>
           <div className="comment-tooltip-body">

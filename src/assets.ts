@@ -3,7 +3,6 @@ const file = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\//,
 export const assets = {
   video: file("/assets/video.png"),
   ipsy: file("/assets/ipsy.png"),
-  lululemon: file("/assets/lululemon.jpg"),
   productThumb: file("/assets/product-thumb.png"),
   neutral: file("/assets/neutral.png"),
   commentImage: file("/assets/comment-image.png"),
@@ -43,13 +42,7 @@ export const assets = {
   themeDot3: file("/assets/theme-dot-3.svg"),
   themeDotGreen: file("/assets/theme-dot-green.svg"),
   carouselNext: file("/assets/post2/carousel-next.svg"),
-  post1: {
-    video: file("/assets/post1/video.png"),
-    thumb: file("/assets/post1/thumb.jpg"),
-  },
   post2: {
-    video: file("/assets/post2/video.png"),
-    luluThumb: file("/assets/post2/thumb.jpg"),
     slides: [
       file("/assets/post2/slide-1.png"),
       file("/assets/post2/slide-2.png"),
@@ -67,6 +60,14 @@ export const assets = {
     chands: file("/assets/post2/avatar-chands.png"),
     madison: file("/assets/post2/avatar-madison.png"),
     chloe: file("/assets/post2/avatar-chloe.png"),
+  },
+  post3: {
+    image: file("/assets/post3/image.png"),
+    elf: file("/assets/post3/avatar-elf.png"),
+    ashley: file("/assets/post3/avatar-ashley.png"),
+    dandan: file("/assets/post3/avatar-dandan.png"),
+    dani: file("/assets/post3/avatar-dani.png"),
+    holly: file("/assets/post3/avatar-holly.png"),
   },
   avatars: [
     file("/assets/avatar-1.png"),

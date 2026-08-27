@@ -1,43 +1,6 @@
-import type { ReactNode } from "react";
 import { CommentCount } from "./CommentCount";
 import { Icon } from "./Icon";
 import type { Post, SummaryMode } from "./posts";
-
-function noOrphan(text: string) {
-  const parts = text.trim().split(/\s+/);
-  if (parts.length < 2) return text;
-  const last = parts.pop()!;
-  const prev = parts.pop()!;
-  return (
-    <>
-      {parts.length ? `${parts.join(" ")} ` : null}
-      <span className="no-orphan">
-        {prev} {last}
-      </span>
-    </>
-  );
-}
-
-function ThemeHeadline({ text, pill }: { text: string; pill: ReactNode }) {
-  const parts = text.trim().split(/\s+/);
-  if (parts.length < 2) {
-    return (
-      <p className="theme-headline">
-        {text} {pill}
-      </p>
-    );
-  }
-  const last = parts.pop()!;
-  const prev = parts.pop()!;
-  return (
-    <p className="theme-headline">
-      {parts.length ? `${parts.join(" ")} ` : null}
-      <span className="no-orphan">
-        {prev} {last} {pill}
-      </span>
-    </p>
-  );
-}
 
 type CommentSummaryProps = {
   post: Post;
@@ -60,24 +23,17 @@ export function CommentSummary({ post, mode, openThread, onOpen, onClose }: Comm
                 <span className="theme-dot">
                   <Icon src={theme.dot} size={10} />
                 </span>
-                <div className="theme-copy">
-                  <ThemeHeadline
-                    text={theme.headline}
-                    pill={
-                      <CommentCount
-                        id={`theme-${theme.id}`}
-                        comments={theme.comments}
-                        count={theme.count}
-                        labeled
-                        open={openThread === `theme-${theme.id}`}
-                        onOpen={onOpen}
-                        onClose={onClose}
-                      />
-                    }
-                  />
-                  {theme.detail ? <p className="theme-detail">{noOrphan(theme.detail)}</p> : null}
-                </div>
+                <p className="theme-headline">{theme.headline}</p>
+                <CommentCount
+                  id={`theme-${theme.id}`}
+                  comments={theme.comments}
+                  labeled
+                  open={openThread === `theme-${theme.id}`}
+                  onOpen={onOpen}
+                  onClose={onClose}
+                />
               </div>
+              {theme.detail ? <p className="theme-detail">{theme.detail}</p> : null}
             </div>
           ))}
         </div>
@@ -111,7 +67,6 @@ export function CommentSummary({ post, mode, openThread, onOpen, onClose }: Comm
             key={theme.id}
             id={theme.id}
             comments={theme.comments}
-            count={theme.count}
             align={index === post.paragraph.length - 2 ? "end" : "center"}
             open={openThread === theme.id}
             onOpen={onOpen}
