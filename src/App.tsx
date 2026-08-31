@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { assets } from "./assets";
+import { CommentRefresh, type RefreshPhase } from "./CommentRefresh";
 import { CommentSummary } from "./CommentSummary";
 import { Icon } from "./Icon";
 import { PrototypeNav } from "./PrototypeNav";
@@ -33,6 +34,20 @@ export default function App() {
   const [notes, setNotes] = useState<string[]>([]);
   const [openThread, setOpenThread] = useState<string | null>(null);
   const [slide, setSlide] = useState(0);
+  const [refreshPhase, setRefreshPhase] = useState<Record<PostId, RefreshPhase>>({
+    "1": "idle",
+    "2": "idle",
+    "3": "idle",
+  });
+  const refreshTimers = useRef<Partial<Record<PostId, number>>>({});
+
+  const startRefresh = (id: PostId) => {
+    window.clearTimeout(refreshTimers.current[id]);
+    setRefreshPhase((current) => ({ ...current, [id]: "loading" }));
+    refreshTimers.current[id] = window.setTimeout(() => {
+      setRefreshPhase((current) => ({ ...current, [id]: "done" }));
+    }, 1800);
+  };
 
   const post = posts[postId];
   const slides = post.slides ?? [];
@@ -276,24 +291,12 @@ export default function App() {
                 <div className="comment-head">
                   <div>
                     <h2 className="section-title">Comment Summary</h2>
-                    <p className="comment-meta">
-                      {post.commentCount} comments, {post.pulled}
-                    </p>
+                    <p className="comment-meta">{post.commentCount} comments</p>
                   </div>
-                  <span className="comment-refresh-wrap">
-                    <button
-                      className="comment-refresh"
-                      type="button"
-                      aria-label="Refresh"
-                      aria-describedby="comment-refresh-tip"
-                    >
-                      <Icon src={assets.refresh} size={16} />
-                    </button>
-                    <span className="comment-refresh-tip" id="comment-refresh-tip" role="tooltip">
-                      Click refresh for the latest{" "}
-                      <span className="comment-refresh-tip-end">comment data.</span>
-                    </span>
-                  </span>
+                  <CommentRefresh
+                    phase={refreshPhase[postId]}
+                    onRefresh={() => startRefresh(postId)}
+                  />
                 </div>
                 <SentimentScore
                   score={post.score}

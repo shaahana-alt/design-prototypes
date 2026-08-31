@@ -203,18 +203,53 @@ img {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 4px;
+  gap: 5px;
+  height: 34px;
+  padding: 7px 14px;
   border: 0;
-  border-radius: 8px;
-  background: #f1f1f1;
+  border-radius: 4px;
+  background: var(--color-gray-300);
+  color: var(--color-gray-700);
   cursor: pointer;
+}
+
+.comment-refresh:disabled {
+  cursor: default;
 }
 
 .comment-refresh .icon,
 .comment-refresh img {
   display: block;
+  flex-shrink: 0;
+}
+
+.comment-refresh.is-idle .icon,
+.comment-refresh.is-idle img {
+  width: 17px;
+  height: 17px;
+}
+
+.comment-refresh.is-loading .icon,
+.comment-refresh.is-loading img {
   width: 16px;
   height: 16px;
+  animation: comment-refresh-spin 0.9s linear infinite;
+}
+
+.comment-refresh.is-done .icon,
+.comment-refresh.is-done img {
+  width: 18px;
+  height: 18px;
+}
+
+.comment-refresh-label {
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 20px;
+  letter-spacing: 0.15px;
+  color: var(--color-gray-700);
+  white-space: nowrap;
 }
 
 .comment-refresh-tip {
@@ -224,7 +259,7 @@ img {
   right: 0;
   z-index: 20;
   width: max-content;
-  max-width: 240px;
+  max-width: 280px;
   padding: 6px 12px;
   background: var(--color-black);
   border: 0;
@@ -245,6 +280,12 @@ img {
 .comment-refresh-wrap:hover .comment-refresh-tip,
 .comment-refresh-wrap:focus-within .comment-refresh-tip {
   display: block;
+}
+
+@keyframes comment-refresh-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .proto-kicker {

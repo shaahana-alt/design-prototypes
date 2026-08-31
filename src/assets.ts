@@ -37,6 +37,8 @@ export const assets = {
   arrowLeft: file("/assets/icon-arrow-left.svg"),
   arrowRight: file("/assets/icon-arrow-right.svg"),
   refresh: file("/assets/icon-refresh.svg"),
+  refreshStatus: file("/assets/icon-refresh-status.svg"),
+  refreshCheck: file("/assets/icon-refresh-check.svg"),
   shakira: file("/assets/avatar-shakira.png"),
   themeDot1: file("/assets/theme-dot-1.svg"),
   themeDot2: file("/assets/theme-dot-2.svg"),
