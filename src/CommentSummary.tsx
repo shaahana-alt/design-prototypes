@@ -45,7 +45,6 @@ export function CommentSummary({ post, mode, openThread, onOpen, onClose }: Comm
                       id={`theme-${theme.id}`}
                       comments={theme.comments}
                       count={theme.count}
-                      labeled
                       open={openThread === `theme-${theme.id}`}
                       onOpen={onOpen}
                       onClose={onClose}

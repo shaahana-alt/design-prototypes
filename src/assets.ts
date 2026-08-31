@@ -36,6 +36,7 @@ export const assets = {
   sentimentPositive: file("/assets/sentiment-positive.svg"),
   arrowLeft: file("/assets/icon-arrow-left.svg"),
   arrowRight: file("/assets/icon-arrow-right.svg"),
+  refresh: file("/assets/icon-refresh.svg"),
   shakira: file("/assets/avatar-shakira.png"),
   themeDot1: file("/assets/theme-dot-1.svg"),
   themeDot2: file("/assets/theme-dot-2.svg"),

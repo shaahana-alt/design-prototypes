@@ -4,7 +4,7 @@ import { CommentSummary } from "./CommentSummary";
 import { Icon } from "./Icon";
 import { PrototypeNav } from "./PrototypeNav";
 import { SentimentScore } from "./SentimentScore";
-import { posts, type PostId, type SentimentMode, type SummaryMode } from "./posts";
+import { posts, type PostId } from "./posts";
 
 function CreatorMeta({ date, followers }: { date: string; followers: string }) {
   return (
@@ -25,8 +25,6 @@ function CreatorMeta({ date, followers }: { date: string; followers: string }) {
 
 export default function App() {
   const [postId, setPostId] = useState<PostId>("1");
-  const [summaryMode, setSummaryMode] = useState<SummaryMode>("paragraph");
-  const [sentimentMode, setSentimentMode] = useState<SentimentMode>("score");
   const [tab, setTab] = useState<"post" | "creator" | "brand">("post");
   const [captionOpen, setCaptionOpen] = useState(false);
   const [summaryOpen, setSummaryOpen] = useState(false);
@@ -53,17 +51,7 @@ export default function App() {
 
   return (
     <>
-      <PrototypeNav
-        postId={postId}
-        summaryMode={summaryMode}
-        sentimentMode={sentimentMode}
-        onPost={switchPost}
-        onSummary={(mode) => {
-          setSummaryMode(mode);
-          setOpenThread(null);
-        }}
-        onSentiment={setSentimentMode}
-      />
+      <PrototypeNav postId={postId} onPost={switchPost} />
       <main className="app">
         <aside className="media-col">
           <div className="media-shell">
@@ -292,26 +280,30 @@ export default function App() {
                       {post.commentCount} comments, {post.pulled}
                     </p>
                   </div>
-                  {sentimentMode === "score" ? (
-                    <SentimentScore
-                      score={post.score}
-                      mode={sentimentMode}
-                      sentiment={post.sentiment}
-                      tone={post.scoreTone}
-                    />
-                  ) : null}
+                  <span className="comment-refresh-wrap">
+                    <button
+                      className="comment-refresh"
+                      type="button"
+                      aria-label="Refresh"
+                      aria-describedby="comment-refresh-tip"
+                    >
+                      <Icon src={assets.refresh} size={16} />
+                    </button>
+                    <span className="comment-refresh-tip" id="comment-refresh-tip" role="tooltip">
+                      Click refresh for the latest{" "}
+                      <span className="comment-refresh-tip-end">comment data.</span>
+                    </span>
+                  </span>
                 </div>
-                {sentimentMode === "chart" ? (
-                  <SentimentScore
-                    score={post.score}
-                    mode={sentimentMode}
-                    sentiment={post.sentiment}
-                    tone={post.scoreTone}
-                  />
-                ) : null}
+                <SentimentScore
+                  score={post.score}
+                  mode="chart"
+                  sentiment={post.sentiment}
+                  tone={post.scoreTone}
+                />
                 <CommentSummary
                   post={post}
-                  mode={summaryMode}
+                  mode="themes"
                   openThread={openThread}
                   onOpen={setOpenThread}
                   onClose={() => setOpenThread(null)}
