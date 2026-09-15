@@ -1,12 +1,18 @@
-import type { PostId, SentimentMode, SummaryMode } from "./posts";
+import type { ChatView } from "./Chat";
+
+export type LabPage = "playground" | "components" | "decisions";
+export type ComponentSection = "library" | "explorations";
+export type LabUseCase = "sourcing" | "workflows";
 
 type PrototypeNavProps = {
-  postId: PostId;
-  summaryMode: SummaryMode;
-  sentimentMode: SentimentMode;
-  onPost: (id: PostId) => void;
-  onSummary: (mode: SummaryMode) => void;
-  onSentiment: (mode: SentimentMode) => void;
+  page: LabPage;
+  section: ComponentSection;
+  useCase: LabUseCase;
+  chatView: ChatView;
+  onPage: (page: LabPage) => void;
+  onSection: (section: ComponentSection) => void;
+  onUseCase: (useCase: LabUseCase) => void;
+  onChatView: (view: ChatView) => void;
 };
 
 function Segment<T extends string>({
@@ -41,43 +47,64 @@ function Segment<T extends string>({
 }
 
 export function PrototypeNav({
-  postId,
-  summaryMode,
-  sentimentMode,
-  onPost,
-  onSummary,
-  onSentiment,
+  page,
+  section,
+  useCase,
+  chatView,
+  onPage,
+  onSection,
+  onUseCase,
+  onChatView,
 }: PrototypeNavProps) {
   return (
     <header className="proto-bar">
       <p className="proto-kicker">Prototype</p>
-      <Segment
-        label="Post"
-        value={postId}
-        onChange={onPost}
-        options={[
-          { id: "1", label: "Lululemon 1" },
-          { id: "2", label: "Lululemon 2" },
-        ]}
-      />
-      <Segment
-        label="Summary"
-        value={summaryMode}
-        onChange={onSummary}
-        options={[
-          { id: "paragraph", label: "Paragraph" },
-          { id: "themes", label: "Themes" },
-        ]}
-      />
-      <Segment
-        label="Sentiment"
-        value={sentimentMode}
-        onChange={onSentiment}
-        options={[
-          { id: "score", label: "Score" },
-          { id: "chart", label: "Chart" },
-        ]}
-      />
+      <div className="proto-row">
+        <Segment
+          label="Page"
+          value={page}
+          onChange={onPage}
+          options={[
+            { id: "playground", label: "Playground" },
+            { id: "components", label: "Components" },
+            { id: "decisions", label: "Design Decisions" },
+          ]}
+        />
+        {page === "components" ? (
+          <Segment
+            label="Section"
+            value={section}
+            onChange={onSection}
+            options={[
+              { id: "library", label: "Library" },
+              { id: "explorations", label: "Explorations" },
+            ]}
+          />
+        ) : null}
+        {page === "playground" ? (
+          <Segment
+            label="Use case"
+            value={useCase}
+            onChange={onUseCase}
+            options={[
+              { id: "sourcing", label: "Creator Sourcing" },
+              { id: "workflows", label: "Workflows" },
+            ]}
+          />
+        ) : null}
+        {page === "playground" && useCase === "sourcing" ? (
+          <Segment
+            label="State"
+            value={chatView}
+            onChange={onChatView}
+            options={[
+              { id: "compose", label: "Compose" },
+              { id: "working", label: "Working" },
+              { id: "compare", label: "Compare" },
+            ]}
+          />
+        ) : null}
+      </div>
     </header>
   );
 }

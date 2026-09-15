@@ -1,0 +1,639 @@
+import { useEffect, useRef, useState } from "react";
+import { chatAssets } from "./chat-assets";
+
+export function ChatIcon({ src, size, alt = "" }: { src: string; size: number; alt?: string }) {
+  return (
+    <span className="icon" style={{ width: size, height: size }}>
+      <img src={src} alt={alt} width={size} height={size} />
+    </span>
+  );
+}
+
+export function ChatChrome({
+  path = ["Plot", "Creator Sourcing", "New search"],
+  onBack,
+  onClose,
+}: {
+  path?: [string, string, string];
+  onBack?: () => void;
+  onClose?: () => void;
+}) {
+  return (
+    <div className="chat-top">
+      <button className="chat-crumb" type="button" onClick={onBack}>
+        <ChatIcon src={chatAssets.back} size={16} />
+        <p>
+          {path[0]} / {path[1]} / <strong>{path[2]}</strong>
+        </p>
+      </button>
+      <button className="chat-close" type="button" aria-label="Close" onClick={onClose}>
+        <ChatIcon src={chatAssets.close} size={16} />
+      </button>
+    </div>
+  );
+}
+
+export function IntercomFab() {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="chat-intercom-wrap">
+      {open ? (
+        <div className="chat-intercom-panel">
+          <p>Need help with this search?</p>
+          <button type="button" onClick={() => setOpen(false)}>
+            Close
+          </button>
+        </div>
+      ) : null}
+      <button
+        className="chat-intercom"
+        type="button"
+        aria-label={open ? "Close messenger" : "Open messenger"}
+        aria-expanded={open}
+        onClick={() => setOpen((value) => !value)}
+      >
+        <ChatIcon src={chatAssets.intercom} size={24} />
+      </button>
+    </div>
+  );
+}
+
+export function UserBubble({ text }: { text: string }) {
+  return (
+    <div className="chat-user-row">
+      <div className="chat-user">
+        <p>{text}</p>
+      </div>
+    </div>
+  );
+}
+
+export function AssistantBubble({ text }: { text: string }) {
+  return (
+    <div className="chat-assistant">
+      <p>{text}</p>
+    </div>
+  );
+}
+
+export function ChoiceCard({
+  title,
+  detail,
+  selected = false,
+  onSelect,
+}: {
+  title: string;
+  detail: string;
+  selected?: boolean;
+  onSelect?: () => void;
+}) {
+  return (
+    <button
+      className={`chat-choice${selected ? " is-selected" : ""}`}
+      type="button"
+      aria-pressed={selected}
+      onClick={onSelect}
+    >
+      <p>{title}</p>
+      <p>{detail}</p>
+    </button>
+  );
+}
+
+export type FollowUpLayout = "chips" | "numbered" | "checks";
+
+export function FollowUpQ({
+  question,
+  step = 1,
+  total = 3,
+  options,
+  layout = "chips",
+  selected,
+  writeIn = true,
+  skip = false,
+  onSelect,
+  onPrev,
+  onNext,
+  onSkip,
+  onWriteIn,
+}: {
+  question: string;
+  step?: number;
+  total?: number;
+  options: string[];
+  layout?: FollowUpLayout;
+  selected?: string | null;
+  writeIn?: boolean;
+  skip?: boolean;
+  onSelect?: (value: string) => void;
+  onPrev?: () => void;
+  onNext?: () => void;
+  onSkip?: () => void;
+  onWriteIn?: () => void;
+}) {
+  return (
+    <div className={`follow-q is-${layout}`}>
+      <div className="follow-q-top">
+        <p>{question}</p>
+        <div className="follow-q-pager">
+          <button type="button" aria-label="Previous question" onClick={onPrev} disabled={step <= 1}>
+            <ChatIcon src={chatAssets.chevronLeft} size={14} />
+          </button>
+          <span>
+            {step} of {total}
+          </span>
+          <button type="button" aria-label="Next question" onClick={onNext} disabled={step >= total}>
+            <ChatIcon src={chatAssets.chevronRight} size={14} />
+          </button>
+        </div>
+      </div>
+      {layout === "chips" ? (
+        <div className="follow-q-chips">
+          {options.map((option) => (
+            <button
+              key={option}
+              className={`follow-q-chip${selected === option ? " is-selected" : ""}`}
+              type="button"
+              onClick={() => onSelect?.(option)}
+            >
+              {option}
+            </button>
+          ))}
+          {writeIn ? (
+            <button className="follow-q-chip is-write" type="button" onClick={onWriteIn}>
+              <ChatIcon src={chatAssets.edit} size={16} />
+              Write in your own words
+            </button>
+          ) : null}
+        </div>
+      ) : (
+        <div className="follow-q-list">
+          {options.map((option, index) => (
+            <button
+              key={option}
+              className={`follow-q-row${selected === option ? " is-selected" : ""}`}
+              type="button"
+              onClick={() => onSelect?.(option)}
+            >
+              {layout === "checks" ? (
+                <ChatIcon src={selected === option ? chatAssets.checkBox : chatAssets.checkBoxEmpty} size={24} />
+              ) : (
+                <span className="follow-q-num">{index + 1}</span>
+              )}
+              <span>{option}</span>
+            </button>
+          ))}
+          <div className="follow-q-foot">
+            {writeIn ? (
+              <button className="follow-q-row is-write" type="button" onClick={onWriteIn}>
+                <span className="follow-q-num">
+                  <ChatIcon src={chatAssets.edit} size={14} />
+                </span>
+                <span>Write in your own words</span>
+              </button>
+            ) : (
+              <span />
+            )}
+            {skip ? (
+              <button className="follow-q-skip" type="button" onClick={onSkip}>
+                Skip
+              </button>
+            ) : null}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function StatusCopy({ text, state }: { text: string; state: "in" | "out" }) {
+  return (
+    <p className={`status-line-copy is-${state}`} aria-hidden={state === "out"}>
+      {text}
+      <span className="status-line-ellipsis"> ...</span>
+    </p>
+  );
+}
+
+export function StatusLine({
+  label,
+  onSelect,
+}: {
+  label: string;
+  onSelect?: () => void;
+}) {
+  const [current, setCurrent] = useState(label);
+  const [outgoing, setOutgoing] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (label === current) return;
+    setOutgoing(current);
+    setCurrent(label);
+    const timer = window.setTimeout(() => setOutgoing(null), 320);
+    return () => window.clearTimeout(timer);
+  }, [label, current]);
+
+  const body = (
+    <>
+      <span className="status-line-mark" aria-hidden="true">
+        <span className="status-line-face">
+          <img src={chatAssets.statusSpin} alt="" width={16} height={16} />
+        </span>
+      </span>
+      <span className="status-line-slot">
+        {outgoing ? <StatusCopy text={outgoing} state="out" /> : null}
+        <StatusCopy text={current} state="in" />
+      </span>
+    </>
+  );
+
+  if (onSelect) {
+    return (
+      <button className="status-line" type="button" onClick={onSelect}>
+        {body}
+      </button>
+    );
+  }
+
+  return <div className="status-line">{body}</div>;
+}
+
+export type SearchDraft = {
+  title: string;
+  brief: string;
+  criteria: string[];
+  platforms: string[];
+  size: string[];
+};
+
+export function deriveDraft(text: string): SearchDraft {
+  const lower = text.toLowerCase();
+  if (lower.includes("nyc")) {
+    return {
+      title: "NYC Creators",
+      brief:
+        "Find me NYC creators who are fashion forward, make day in the life videos with 2-5k followers who create cinematic vlogs. Women only. ",
+      criteria: ["#nycfashion", "#nycvlog"],
+      platforms: ["Instagram"],
+      size: ["2-5k"],
+    };
+  }
+  const sizeMatch = text.match(/\d+\s*[-–]\s*\d+\s*k/i)?.[0].replace(/\s+/g, "") ?? "";
+  const words = text.replace(/[^\w\s-]/g, "").split(/\s+/).filter(Boolean);
+  const title = words.slice(0, 3).join(" ") || "New search";
+  const criteria: string[] = [];
+  if (lower.includes("fashion")) criteria.push("#fashion");
+  if (lower.includes("skincare") || lower.includes("dermat")) criteria.push("#skincare");
+  if (lower.includes("vlog")) criteria.push("#vlog");
+  if (!criteria.length) criteria.push("#creators");
+  return {
+    title: title.length > 28 ? `${title.slice(0, 26)}…` : title,
+    brief: text,
+    criteria,
+    platforms: lower.includes("tiktok") ? ["TikTok"] : ["Instagram"],
+    size: sizeMatch ? [sizeMatch] : [],
+  };
+}
+
+export function Chip({
+  label,
+  variant = "default",
+  selected = false,
+  options,
+  onRemove,
+  onEdit,
+  onChange,
+  onSelect,
+}: {
+  label: string;
+  variant?: "default" | "dismiss" | "edit" | "menu";
+  selected?: boolean;
+  options?: string[];
+  onRemove?: () => void;
+  onEdit?: () => void;
+  onChange?: (value: string) => void;
+  onSelect?: () => void;
+}) {
+  if (variant === "menu" && options?.length) {
+    return (
+      <label className="chat-chip is-menu">
+        <select value={label} onChange={(event) => onChange?.(event.target.value)}>
+          {options.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+      </label>
+    );
+  }
+
+  const className = `chat-chip${variant !== "default" ? ` is-${variant}` : ""}${selected ? " is-selected" : ""}`;
+
+  const mark = selected ? <ChatIcon src={chatAssets.check} size={14} /> : null;
+
+  if (onSelect) {
+    return (
+      <button className={className} type="button" aria-pressed={selected} onClick={onSelect}>
+        {mark}
+        <span>{label}</span>
+      </button>
+    );
+  }
+
+  return (
+    <span className={className}>
+      {mark}
+      <span>{label}</span>
+      {variant === "edit" ? (
+        <button type="button" aria-label={`Edit ${label}`} onClick={onEdit}>
+          <ChatIcon src={chatAssets.edit} size={16} />
+        </button>
+      ) : null}
+      {variant === "dismiss" ? (
+        <button type="button" aria-label={`Remove ${label}`} onClick={onRemove}>
+          <ChatIcon src={chatAssets.close} size={10} />
+        </button>
+      ) : null}
+    </span>
+  );
+}
+
+export type DraftBlock = {
+  title: string;
+  chips: { label: string; variant?: "default" | "edit" }[];
+};
+
+export function DraftPanel({
+  draft,
+  fillLevel,
+  title,
+  summary,
+  blocks,
+  kicker = "Draft",
+}: {
+  draft?: SearchDraft;
+  fillLevel?: number;
+  title?: string;
+  summary?: string;
+  blocks?: DraftBlock[];
+  kicker?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const brief = draft?.brief ?? "";
+  const long = brief.length > 120;
+  const shown = open || !long ? brief : `${brief.slice(0, 118).trim()}…`;
+  const level = fillLevel ?? 0;
+
+  if (blocks) {
+    return (
+      <aside className="chat-draft">
+        <div className="chat-draft-top">
+          <p>{kicker}</p>
+          <button
+            className={saved ? "chat-draft-save is-saved" : "chat-draft-save"}
+            type="button"
+            onClick={() => setSaved(true)}
+          >
+            {saved ? "Saved" : "Save as draft"}
+          </button>
+        </div>
+        <div className="chat-draft-copy">
+          {title ? <h2>{title}</h2> : null}
+          {summary ? <p>{summary}</p> : null}
+        </div>
+        {blocks.map((block) => (
+          <div key={block.title} className="chat-draft-block">
+            <h3>{block.title}</h3>
+            <div className="chat-chips">
+              {block.chips.map((chip) => (
+                <Chip key={chip.label} label={chip.label} variant={chip.variant} />
+              ))}
+            </div>
+          </div>
+        ))}
+      </aside>
+    );
+  }
+
+  return (
+    <aside className="chat-draft">
+      <div className="chat-draft-top">
+        <p>{kicker}</p>
+        <button
+          className={saved ? "chat-draft-save is-saved" : "chat-draft-save"}
+          type="button"
+          onClick={() => setSaved(true)}
+        >
+          {saved ? "Saved" : "Save as draft"}
+        </button>
+      </div>
+      {level < 1 || !draft ? (
+        <div className="chat-draft-copy">
+          <span className="chat-draft-skel is-title" />
+          <span className="chat-draft-skel is-line" />
+          <span className="chat-draft-skel is-line is-short" />
+        </div>
+      ) : (
+        <div className="chat-draft-copy">
+          <h2>{draft.title}</h2>
+          <p>{shown}</p>
+          {long ? (
+            <button className="chat-draft-more" type="button" onClick={() => setOpen((value) => !value)}>
+              {open ? "See less" : "See more"}
+            </button>
+          ) : null}
+        </div>
+      )}
+      {level >= 2 && draft ? (
+        <div className="chat-draft-block">
+          <h3>Criteria</h3>
+          <div className="chat-chips">
+            {draft.criteria.map((item) => (
+              <Chip key={item} label={item} />
+            ))}
+          </div>
+        </div>
+      ) : null}
+      {level >= 3 && draft ? (
+        <>
+          <div className="chat-draft-block">
+            <h3>Platforms</h3>
+            <div className="chat-chips">
+              {draft.platforms.map((item) => (
+                <Chip key={item} label={item} />
+              ))}
+            </div>
+          </div>
+          {draft.size.length ? (
+            <div className="chat-draft-block">
+              <h3>Creator Size</h3>
+              <div className="chat-chips">
+                {draft.size.map((item) => (
+                  <Chip key={item} label={item} />
+                ))}
+              </div>
+            </div>
+          ) : null}
+        </>
+      ) : null}
+    </aside>
+  );
+}
+
+export function WorkingStatus({ label = "Plot AI is working" }: { label?: string }) {
+  return (
+    <div className="chat-status">
+      <p>{label}</p>
+      <div className="chat-dots" aria-hidden="true">
+        <span />
+        <span />
+        <span />
+      </div>
+    </div>
+  );
+}
+
+export type ProcessVariant = "default" | "wash" | "bordered" | "compact" | "bar" | "numbered";
+
+export function ProcessCard({
+  title = "Processing your response",
+  elapsed,
+  steps,
+  onToggle,
+  variant = "default",
+  activeIndex,
+  meta,
+}: {
+  title?: string;
+  elapsed: number;
+  steps: { label: string; done: boolean }[];
+  onToggle?: (index: number) => void;
+  variant?: ProcessVariant;
+  activeIndex?: number;
+  meta?: string;
+}) {
+  const mins = Math.floor(elapsed / 60);
+  const secs = String(elapsed % 60).padStart(2, "0");
+  const doneCount = steps.filter((step) => step.done).length;
+  const progress = steps.length ? Math.round((doneCount / steps.length) * 100) : 0;
+
+  return (
+    <div className={`chat-process is-${variant}`}>
+      <div className="chat-process-head">
+        <p>{title}</p>
+        <span>{meta ?? `${mins}:${secs}`}</span>
+      </div>
+      {variant === "bar" ? (
+        <div className="chat-process-bar" aria-hidden="true">
+          <span style={{ width: `${progress}%` }} />
+        </div>
+      ) : null}
+      {steps.map((step, index) => {
+        const current = activeIndex === index && !step.done;
+        return (
+          <button
+            key={step.label}
+            className={`chat-process-row${current ? " is-current" : ""}${step.done ? " is-done" : ""}`}
+            type="button"
+            onClick={onToggle ? () => onToggle(index) : undefined}
+            disabled={!onToggle}
+          >
+            <span
+              className={`chat-check${step.done ? " is-done" : ""}${current ? " is-current" : ""}${
+                variant === "numbered" ? " is-num" : ""
+              }`}
+            >
+              {variant === "numbered" ? index + 1 : null}
+            </span>
+            <p>{step.label}</p>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+export function Composer({
+  value,
+  onChange,
+  onSubmit,
+  docked = false,
+  busy = false,
+  placeholder,
+  autoFocus = false,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  onSubmit: () => void;
+  docked?: boolean;
+  busy?: boolean;
+  placeholder?: string;
+  autoFocus?: boolean;
+}) {
+  const field = useRef<HTMLTextAreaElement>(null);
+  const canSend = !busy && value.trim().length > 0;
+
+  useEffect(() => {
+    if (!autoFocus || busy) return;
+    const node = field.current;
+    if (!node) return;
+    node.focus();
+    const end = node.value.length;
+    node.setSelectionRange(end, end);
+  }, [autoFocus, busy]);
+
+  return (
+    <form
+      className={`chat-composer${docked ? " is-docked" : ""}${busy ? " is-busy" : ""}`}
+      onSubmit={(event) => {
+        event.preventDefault();
+        if (canSend) onSubmit();
+      }}
+      onClick={() => {
+        if (!busy) field.current?.focus();
+      }}
+    >
+      <textarea
+        ref={field}
+        value={busy && docked ? "Working on it…" : value}
+        onChange={(event) => onChange(event.target.value)}
+        readOnly={busy}
+        rows={docked ? 3 : 2}
+        placeholder={placeholder ?? "Describe the creators you want…"}
+        aria-label={busy ? "Composer unavailable" : "Message"}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+            if (canSend) onSubmit();
+          }
+        }}
+      />
+      <button
+        className="chat-send"
+        type="submit"
+        disabled={!canSend}
+        aria-label={canSend ? "Send" : "Send unavailable"}
+      >
+        <ChatIcon src={canSend ? chatAssets.send : chatAssets.sendDisabled} size={36} />
+      </button>
+    </form>
+  );
+}
+
+export function useElapsed(active: boolean) {
+  const [elapsed, setElapsed] = useState(0);
+  useEffect(() => {
+    if (!active) {
+      setElapsed(0);
+      return;
+    }
+    setElapsed(0);
+    const id = window.setInterval(() => {
+      setElapsed((value) => value + 1);
+    }, 1000);
+    return () => window.clearInterval(id);
+  }, [active]);
+  return elapsed;
+}

@@ -4,7 +4,7 @@ on:
   push:
     # github-pages environment only allows these branches to deploy.
     # lululemon and handoff are still built into their folders whenever this runs.
-    branches: [main, fabletics]
+    branches: [main, fabletics, chat-explorations]
   workflow_dispatch:
 
 permissions:
@@ -32,9 +32,9 @@ jobs:
           set -euo pipefail
           mkdir -p site
           touch site/.nojekyll
-          git fetch origin main fabletics lululemon handoff --prune || true
+          git fetch origin main fabletics lululemon handoff chat-explorations --prune || true
 
-          for branch in main fabletics lululemon handoff; do
+          for branch in main fabletics lululemon handoff chat-explorations; do
             if ! git rev-parse --verify "origin/${branch}" >/dev/null 2>&1; then
               echo "Skipping ${branch} (not on origin)"
               continue
