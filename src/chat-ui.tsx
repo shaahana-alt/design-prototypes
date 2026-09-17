@@ -468,6 +468,7 @@ export function DraftPanel({
   summary,
   blocks,
   kicker = "Draft",
+  onEditChip,
 }: {
   draft?: SearchDraft;
   fillLevel?: number;
@@ -475,6 +476,7 @@ export function DraftPanel({
   summary?: string;
   blocks?: DraftBlock[];
   kicker?: string;
+  onEditChip?: (label: string) => void;
 }) {
   const [open, setOpen] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -505,7 +507,12 @@ export function DraftPanel({
             <h3>{block.title}</h3>
             <div className="chat-chips">
               {block.chips.map((chip) => (
-                <Chip key={chip.label} label={chip.label} variant={chip.variant} />
+                <Chip
+                  key={chip.label}
+                  label={chip.label}
+                  variant={chip.variant ?? "edit"}
+                  onEdit={() => onEditChip?.(chip.label)}
+                />
               ))}
             </div>
           </div>
@@ -548,7 +555,7 @@ export function DraftPanel({
           <h3>Criteria</h3>
           <div className="chat-chips">
             {draft.criteria.map((item) => (
-              <Chip key={item} label={item} />
+              <Chip key={item} label={item} variant="edit" onEdit={() => onEditChip?.(item)} />
             ))}
           </div>
         </div>
@@ -559,7 +566,7 @@ export function DraftPanel({
             <h3>Platforms</h3>
             <div className="chat-chips">
               {draft.platforms.map((item) => (
-                <Chip key={item} label={item} />
+                <Chip key={item} label={item} variant="edit" onEdit={() => onEditChip?.(item)} />
               ))}
             </div>
           </div>
@@ -568,7 +575,7 @@ export function DraftPanel({
               <h3>Creator Size</h3>
               <div className="chat-chips">
                 {draft.size.map((item) => (
-                  <Chip key={item} label={item} />
+                  <Chip key={item} label={item} variant="edit" onEdit={() => onEditChip?.(item)} />
                 ))}
               </div>
             </div>
@@ -661,8 +668,10 @@ export function Composer({
   placeholder,
   autoFocus = false,
   quote,
+  quotes,
   onClearQuote,
   sendSize = 36,
+  toolbar,
   children,
 }: {
   value: string;
@@ -673,8 +682,10 @@ export function Composer({
   placeholder?: string;
   autoFocus?: boolean;
   quote?: string | null;
-  onClearQuote?: () => void;
+  quotes?: string[];
+  onClearQuote?: (quote: string) => void;
   sendSize?: number;
+  toolbar?: ReactNode;
   children?: ReactNode;
 }) {
   const field = useRef<HTMLTextAreaElement>(null);
@@ -700,24 +711,32 @@ export function Composer({
         if (!busy) field.current?.focus();
       }}
     >
-      {children}
-      {quote ? (
-        <div className="chat-composer-quote">
-          <p>{quote}</p>
-          {onClearQuote ? (
-            <button
-              type="button"
-              aria-label="Clear highlight"
-              onClick={(event) => {
-                event.stopPropagation();
-                onClearQuote();
-              }}
-            >
-              <ChatIcon src={chatAssets.close} size={14} />
-            </button>
-          ) : null}
-        </div>
-      ) : null}
+      {children ? <div className="chat-composer-attach">{children}</div> : null}
+      {(() => {
+        const chips = quotes?.length ? quotes : quote ? [quote] : [];
+        if (!chips.length) return null;
+        return (
+          <div className="chat-composer-quotes">
+            {chips.map((item) => (
+              <div className="chat-composer-quote" key={item}>
+                <p>{item}</p>
+                {onClearQuote ? (
+                  <button
+                    type="button"
+                    aria-label={`Clear ${item}`}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onClearQuote(item);
+                    }}
+                  >
+                    <ChatIcon src={chatAssets.close} size={14} />
+                  </button>
+                ) : null}
+              </div>
+            ))}
+          </div>
+        );
+      })()}
       <textarea
         ref={field}
         value={busy && docked ? "Working on it…" : value}
@@ -733,14 +752,17 @@ export function Composer({
           }
         }}
       />
-      <button
-        className={`chat-send${sendSize < 36 ? " is-sm" : ""}`}
-        type="submit"
-        disabled={!canSend}
-        aria-label={canSend ? "Send" : "Send unavailable"}
-      >
-        <ChatIcon src={canSend ? chatAssets.send : chatAssets.sendDisabled} size={sendSize} />
-      </button>
+      <div className={`chat-composer-foot${toolbar ? " is-split" : ""}`}>
+        {toolbar}
+        <button
+          className={`chat-send${sendSize < 36 ? " is-sm" : ""}`}
+          type="submit"
+          disabled={!canSend}
+          aria-label={canSend ? "Send" : "Send unavailable"}
+        >
+          <ChatIcon src={canSend ? chatAssets.send : chatAssets.sendDisabled} size={sendSize} />
+        </button>
+      </div>
     </form>
   );
 }

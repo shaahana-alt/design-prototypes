@@ -40,4 +40,7 @@ export const chatAssets = {
   topic: file("/assets/chat/icon-topic.svg"),
   report: file("/assets/chat/icon-report.svg"),
   editSm: file("/assets/chat/icon-edit-sm.svg"),
+  caretFigma: file("/assets/chat/icon-caret-figma.svg"),
+  flash: file("/assets/chat/icon-flash.svg"),
+  sendUp: file("/assets/chat/icon-send-up.svg"),
 };

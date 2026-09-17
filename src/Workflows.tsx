@@ -14,6 +14,7 @@ const TYPES = [
 export function Workflows() {
   const [picked, setPicked] = useState<string | null>(null);
   const [followUp, setFollowUp] = useState("");
+  const [editQuotes, setEditQuotes] = useState<string[]>([]);
 
   return (
     <div className="chat-lab">
@@ -41,8 +42,13 @@ export function Workflows() {
                   <Composer
                     autoFocus
                     value={followUp}
+                    quotes={editQuotes}
                     onChange={setFollowUp}
-                    onSubmit={() => setFollowUp("")}
+                    onClearQuote={(quote) => setEditQuotes((current) => current.filter((item) => item !== quote))}
+                    onSubmit={() => {
+                      setFollowUp("");
+                      setEditQuotes([]);
+                    }}
                     placeholder="Describe the notification you want…"
                   />
                 </div>
@@ -59,6 +65,10 @@ export function Workflows() {
                   { title: "Frequency", chips: [{ label: "Not set yet" }] },
                   { title: "Deliver to", chips: [{ label: "Slack", variant: "edit" }] },
                 ]}
+                onEditChip={(label) => {
+                  setEditQuotes((current) => (current.includes(label) ? current : [...current, label]));
+                  setFollowUp("What do you want to change?");
+                }}
               />
             </div>
           </div>

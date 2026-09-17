@@ -41,18 +41,24 @@ function Thread({
   messages,
   busy,
   draft,
+  quotes,
   step,
   onDraft,
   onSend,
   onReset,
+  onEditChip,
+  onClearQuote,
 }: {
   messages: ChatMessage[];
   busy: boolean;
   draft: string;
+  quotes: string[];
   step: number;
   onDraft: (value: string) => void;
   onSend: () => void;
   onReset: () => void;
+  onEditChip: (label: string) => void;
+  onClearQuote: (quote: string) => void;
 }) {
   const prompt = messages.find((message) => message.role === "user")?.text ?? "";
   const fillLevel = busy ? Math.min(step, 3) : prompt ? 3 : 0;
@@ -84,7 +90,9 @@ function Thread({
                   autoFocus={!busy}
                   busy={busy}
                   value={draft}
+                  quotes={quotes}
                   onChange={onDraft}
+                  onClearQuote={onClearQuote}
                   onSubmit={onSend}
                   placeholder="Ask a follow-up…"
                 />
@@ -92,7 +100,11 @@ function Thread({
             </div>
           </div>
           <div className="chat-draft-col">
-            <DraftPanel draft={prompt ? deriveDraft(prompt) : undefined} fillLevel={fillLevel} />
+            <DraftPanel
+              draft={prompt ? deriveDraft(prompt) : undefined}
+              fillLevel={fillLevel}
+              onEditChip={onEditChip}
+            />
           </div>
         </div>
       </div>
@@ -145,10 +157,17 @@ export function Chat({ view, onView }: { view: ChatView; onView: (view: ChatView
   const [busy, setBusy] = useState(false);
   const [step, setStep] = useState(0);
   const [runId, setRunId] = useState(0);
+  const [editQuotes, setEditQuotes] = useState<string[]>([]);
+
+  const editChip = (label: string) => {
+    setEditQuotes((current) => (current.includes(label) ? current : [...current, label]));
+    setFollowUp("What do you want to change?");
+  };
 
   const reset = () => {
     setDraft("");
     setFollowUp("");
+    setEditQuotes([]);
     setMessages([]);
     setBusy(false);
     setStep(0);
@@ -161,6 +180,7 @@ export function Chat({ view, onView }: { view: ChatView; onView: (view: ChatView
     setMessages((current) => [...current, { id: nextId(), role: "user", text: trimmed }]);
     setFollowUp("");
     setDraft("");
+    setEditQuotes([]);
     setBusy(true);
     setStep(0);
     setRunId((value) => value + 1);
@@ -196,10 +216,13 @@ export function Chat({ view, onView }: { view: ChatView; onView: (view: ChatView
       messages={messages}
       busy={busy}
       draft={followUp}
+      quotes={editQuotes}
       step={step}
       onDraft={setFollowUp}
       onSend={() => send(followUp)}
       onReset={reset}
+      onEditChip={editChip}
+      onClearQuote={(quote) => setEditQuotes((current) => current.filter((item) => item !== quote))}
     />
   );
 
@@ -215,10 +238,13 @@ export function Chat({ view, onView }: { view: ChatView; onView: (view: ChatView
               messages={[{ id: "demo", role: "user", text: WORKING_PROMPT }]}
               busy
               draft=""
+              quotes={editQuotes}
               step={Math.min(step + 1, 1)}
               onDraft={setFollowUp}
               onSend={() => undefined}
               onReset={reset}
+              onEditChip={editChip}
+              onClearQuote={(quote) => setEditQuotes((current) => current.filter((item) => item !== quote))}
             />
           )}
         </div>

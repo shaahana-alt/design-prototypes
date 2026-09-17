@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from "react";
-import { ChatIcon, Chip, DraftPanel, StatusLine } from "./chat-ui";
+import { ChatIcon, Chip, StatusLine } from "./chat-ui";
 import { chatAssets } from "./chat-assets";
 import { designDecisions } from "./design-decisions";
 import "./chat.css";
@@ -31,23 +31,6 @@ function Heading() {
       <h2>Brand Mentions</h2>
       <p>We'll deliver matching posts to your channels.</p>
     </div>
-  );
-}
-
-function ContentPills() {
-  return (
-    <DraftPanel
-      kicker="New Notification"
-      title="Brand Mentions"
-      summary="We'll deliver matching posts to your channels."
-      blocks={BLOCKS.map((block) => ({
-        title: block.title,
-        chips: block.values.map((label) => ({
-          label,
-          variant: label === "Slack" ? ("edit" as const) : undefined,
-        })),
-      }))}
-    />
   );
 }
 
@@ -170,10 +153,6 @@ export function DesignDecisions() {
             already use in sourcing.
           </p>
           <div className="chat-spec-grid">
-            <figure className="chat-spec-canvas chat-draft-preview">
-              <figcaption>Headings + pills — now</figcaption>
-              <ContentPills />
-            </figure>
             <figure className="chat-spec-canvas chat-draft-preview">
               <figcaption>Section + Edit — Workflows</figcaption>
               <ContentSectionEdit />
