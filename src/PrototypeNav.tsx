@@ -2,7 +2,7 @@ import type { ChatView } from "./Chat";
 
 export type LabPage = "playground" | "components" | "decisions";
 export type ComponentSection = "library" | "explorations";
-export type LabUseCase = "sourcing" | "workflows";
+export type LabUseCase = "sourcing" | "workflows" | "insights";
 
 type PrototypeNavProps = {
   page: LabPage;
@@ -89,6 +89,7 @@ export function PrototypeNav({
             options={[
               { id: "sourcing", label: "Creator Sourcing" },
               { id: "workflows", label: "Workflows" },
+              { id: "insights", label: "Insights" },
             ]}
           />
         ) : null}

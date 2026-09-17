@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { chatAssets } from "./chat-assets";
 
 export function ChatIcon({ src, size, alt = "" }: { src: string; size: number; alt?: string }) {
@@ -111,6 +111,8 @@ export function FollowUpQ({
   selected,
   writeIn = true,
   skip = false,
+  pager = true,
+  className,
   onSelect,
   onPrev,
   onNext,
@@ -125,6 +127,8 @@ export function FollowUpQ({
   selected?: string | null;
   writeIn?: boolean;
   skip?: boolean;
+  pager?: boolean;
+  className?: string;
   onSelect?: (value: string) => void;
   onPrev?: () => void;
   onNext?: () => void;
@@ -132,20 +136,22 @@ export function FollowUpQ({
   onWriteIn?: () => void;
 }) {
   return (
-    <div className={`follow-q is-${layout}`}>
+    <div className={`follow-q is-${layout}${className ? ` ${className}` : ""}`}>
       <div className="follow-q-top">
         <p>{question}</p>
-        <div className="follow-q-pager">
-          <button type="button" aria-label="Previous question" onClick={onPrev} disabled={step <= 1}>
-            <ChatIcon src={chatAssets.chevronLeft} size={14} />
-          </button>
-          <span>
-            {step} of {total}
-          </span>
-          <button type="button" aria-label="Next question" onClick={onNext} disabled={step >= total}>
-            <ChatIcon src={chatAssets.chevronRight} size={14} />
-          </button>
-        </div>
+        {pager ? (
+          <div className="follow-q-pager">
+            <button type="button" aria-label="Previous question" onClick={onPrev} disabled={step <= 1}>
+              <ChatIcon src={chatAssets.chevronLeft} size={14} />
+            </button>
+            <span>
+              {step} of {total}
+            </span>
+            <button type="button" aria-label="Next question" onClick={onNext} disabled={step >= total}>
+              <ChatIcon src={chatAssets.chevronRight} size={14} />
+            </button>
+          </div>
+        ) : null}
       </div>
       {layout === "chips" ? (
         <div className="follow-q-chips">
@@ -202,6 +208,94 @@ export function FollowUpQ({
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function FileGlyph({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path
+        d="M4.2 1.5h5.1L12.5 4.7V13c0 .8-.6 1.5-1.4 1.5H4.2C3.4 14.5 2.8 13.8 2.8 13V3c0-.8.6-1.5 1.4-1.5Z"
+        stroke="#230603"
+        strokeLinejoin="round"
+      />
+      <path d="M9.2 1.6V5h3.2" stroke="#230603" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+export function ChatLink({
+  title,
+  meta,
+  kicker,
+  compact = false,
+}: {
+  title: string;
+  meta: string;
+  kicker?: string;
+  compact?: boolean;
+}) {
+  const card = (
+    <button
+      className={`chat-link${compact ? " is-compact" : ""}`}
+      type="button"
+      onClick={(event) => event.stopPropagation()}
+    >
+      <span className="chat-link-preview">
+        <FileGlyph size={compact ? 18 : 16} />
+      </span>
+      <span className="chat-link-copy">
+        <strong>{title}</strong>
+        <span>{meta}</span>
+      </span>
+    </button>
+  );
+
+  if (!kicker) return card;
+
+  return (
+    <div className="chat-link-thread">
+      <p className="chat-link-kicker">
+        <FileGlyph size={16} />
+        {kicker}
+      </p>
+      {card}
+    </div>
+  );
+}
+
+export function RecommendActions({
+  actions,
+  recommended,
+  selected,
+  onSelect,
+}: {
+  actions: string[];
+  recommended?: string;
+  selected?: string | null;
+  onSelect?: (value: string) => void;
+}) {
+  return (
+    <div className="recommend-actions">
+      <div className="follow-q-chips">
+        {actions.map((action) => {
+          const isSelected = selected === action;
+          const isRecommended = Boolean(recommended) && recommended === action && !selected;
+          return (
+            <button
+              key={action}
+              className={`follow-q-chip${isSelected ? " is-selected" : ""}${isRecommended ? " is-recommended" : ""}`}
+              type="button"
+              aria-pressed={isSelected}
+              onClick={() => onSelect?.(action)}
+            >
+              {isSelected ? <ChatIcon src={chatAssets.check} size={14} /> : null}
+              {action}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -300,15 +394,17 @@ export function Chip({
   variant = "default",
   selected = false,
   options,
+  icon,
   onRemove,
   onEdit,
   onChange,
   onSelect,
 }: {
   label: string;
-  variant?: "default" | "dismiss" | "edit" | "menu";
+  variant?: "default" | "dismiss" | "edit" | "menu" | "action";
   selected?: boolean;
   options?: string[];
+  icon?: string;
   onRemove?: () => void;
   onEdit?: () => void;
   onChange?: (value: string) => void;
@@ -330,12 +426,13 @@ export function Chip({
 
   const className = `chat-chip${variant !== "default" ? ` is-${variant}` : ""}${selected ? " is-selected" : ""}`;
 
-  const mark = selected ? <ChatIcon src={chatAssets.check} size={14} /> : null;
+  const mark = !icon && selected ? <ChatIcon src={chatAssets.check} size={14} /> : null;
+  const leading = icon ? <ChatIcon src={icon} size={16} /> : mark;
 
   if (onSelect) {
     return (
       <button className={className} type="button" aria-pressed={selected} onClick={onSelect}>
-        {mark}
+        {leading}
         <span>{label}</span>
       </button>
     );
@@ -343,7 +440,7 @@ export function Chip({
 
   return (
     <span className={className}>
-      {mark}
+      {leading}
       <span>{label}</span>
       {variant === "edit" ? (
         <button type="button" aria-label={`Edit ${label}`} onClick={onEdit}>
@@ -563,6 +660,10 @@ export function Composer({
   busy = false,
   placeholder,
   autoFocus = false,
+  quote,
+  onClearQuote,
+  sendSize = 36,
+  children,
 }: {
   value: string;
   onChange: (value: string) => void;
@@ -571,6 +672,10 @@ export function Composer({
   busy?: boolean;
   placeholder?: string;
   autoFocus?: boolean;
+  quote?: string | null;
+  onClearQuote?: () => void;
+  sendSize?: number;
+  children?: ReactNode;
 }) {
   const field = useRef<HTMLTextAreaElement>(null);
   const canSend = !busy && value.trim().length > 0;
@@ -595,6 +700,24 @@ export function Composer({
         if (!busy) field.current?.focus();
       }}
     >
+      {children}
+      {quote ? (
+        <div className="chat-composer-quote">
+          <p>{quote}</p>
+          {onClearQuote ? (
+            <button
+              type="button"
+              aria-label="Clear highlight"
+              onClick={(event) => {
+                event.stopPropagation();
+                onClearQuote();
+              }}
+            >
+              <ChatIcon src={chatAssets.close} size={14} />
+            </button>
+          ) : null}
+        </div>
+      ) : null}
       <textarea
         ref={field}
         value={busy && docked ? "Working on it…" : value}
@@ -611,12 +734,12 @@ export function Composer({
         }}
       />
       <button
-        className="chat-send"
+        className={`chat-send${sendSize < 36 ? " is-sm" : ""}`}
         type="submit"
         disabled={!canSend}
         aria-label={canSend ? "Send" : "Send unavailable"}
       >
-        <ChatIcon src={canSend ? chatAssets.send : chatAssets.sendDisabled} size={36} />
+        <ChatIcon src={canSend ? chatAssets.send : chatAssets.sendDisabled} size={sendSize} />
       </button>
     </form>
   );

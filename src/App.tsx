@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Chat, type ChatView } from "./Chat";
 import { ChatComponents } from "./ChatComponents";
 import { ChatExplorations } from "./ChatExplorations";
+import { ChatInsights } from "./ChatInsights";
 import { DesignDecisions } from "./DesignDecisions";
 import { PrototypeNav, type ComponentSection, type LabPage, type LabUseCase } from "./PrototypeNav";
 import { Workflows } from "./Workflows";
@@ -33,7 +34,13 @@ export default function App() {
       ) : page === "decisions" ? (
         <DesignDecisions />
       ) : (
-        useCase === "workflows" ? <Workflows /> : <Chat view={chatView} onView={setChatView} />
+        useCase === "workflows" ? (
+          <Workflows />
+        ) : useCase === "insights" ? (
+          <ChatInsights />
+        ) : (
+          <Chat view={chatView} onView={setChatView} />
+        )
       )}
     </>
   );

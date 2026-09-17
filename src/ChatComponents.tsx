@@ -7,6 +7,7 @@ import {
   DraftPanel,
   FollowUpQ,
   IntercomFab,
+  ChatLink,
   ChoiceCard,
   StatusLine,
   UserBubble,
@@ -146,6 +147,24 @@ export function ChatComponents() {
                 skip
                 onSelect={setFollowCheck}
               />
+            </figure>
+          </div>
+        </section>
+
+        <section className="chat-spec">
+          <h2>Link</h2>
+          <div className="chat-spec-grid">
+            <figure className="chat-spec-canvas">
+              <figcaption>In the thread</figcaption>
+              <ChatLink
+                kicker="Opened file"
+                title="Adobe Social Listening Snapshot"
+                meta="index.html"
+              />
+            </figure>
+            <figure className="chat-spec-canvas">
+              <figcaption>In the composer</figcaption>
+              <ChatLink compact title="Adobe Social Listening Snapshot" meta="File" />
             </figure>
           </div>
         </section>
